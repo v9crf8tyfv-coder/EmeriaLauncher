@@ -4,8 +4,6 @@ const headImg = document.getElementById('head');
 const playBtn = document.getElementById('play');
 const statusEl = document.getElementById('status');
 const barFill = document.getElementById('bar-fill');
-const ipBox = document.getElementById('ip-box');
-const ipText = document.getElementById('ip-text');
 
 const settingsBtn = document.getElementById('settings-btn');
 const settingsOverlay = document.getElementById('settings');
@@ -72,14 +70,6 @@ window.api.onClosed(() => {
   playBtn.disabled = !connected;
 });
 
-// Copier l'IP
-ipBox.addEventListener('click', async () => {
-  await window.api.copyIp();
-  const old = ipText.textContent;
-  ipText.textContent = 'IP copiée ✓';
-  setTimeout(() => (ipText.textContent = old), 1200);
-});
-
 // Statut / progression / maj
 window.api.onStatus((s) => (statusEl.textContent = s));
 window.api.onUpdate((msg) => (statusEl.textContent = msg));
@@ -96,7 +86,6 @@ async function loadSettings() {
   const s = await window.api.getSettings();
   ramInput.value = s.ram;
   ramVal.textContent = s.ram;
-  ipText.textContent = s.ip;
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
 }
