@@ -5,20 +5,25 @@
   user-select: none;
 }
 :root {
-  --accent: #8b5cf6;
-  --accent-2: #a855f7;
+  --bg: #0e0e12;
+  --panel: #16161c;
+  --line: rgba(255, 255, 255, 0.08);
+  --txt: #e8e8ec;
+  --muted: #8a8a94;
+  --accent: #7c5cff;
 }
 body {
-  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #fff;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--txt);
   height: 100vh;
   overflow: hidden;
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 .bg {
   position: absolute;
   inset: 0;
-  background: #0b0b10; /* fond noir/sombre — image plus tard */
+  background: var(--bg);
   z-index: -1;
 }
 
@@ -27,140 +32,136 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72px;
+  height: 64px;
   position: relative;
+  border-bottom: 1px solid var(--line);
 }
 .brand {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--txt);
 }
 .icon-btn {
   position: absolute;
-  left: 16px;
-  top: 18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  font-size: 16px;
+  left: 14px;
+  top: 15px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
   cursor: pointer;
+  transition: all 0.15s;
 }
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--txt);
+  background: rgba(255, 255, 255, 0.04);
 }
 .login-pill {
   position: absolute;
-  right: 16px;
-  top: 16px;
+  right: 14px;
+  top: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt);
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.15s;
 }
 .login-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
 }
 .login-pill .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--muted);
 }
 .login-pill.connected .dot {
   display: none;
 }
 .head {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
   image-rendering: pixelated;
 }
 
 /* Centre */
 main {
-  height: calc(100vh - 72px);
+  height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
 }
 .play-btn {
-  padding: 20px 90px;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: 2px;
+  padding: 15px 76px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
   color: #fff;
   border: none;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 10px;
+  background: var(--accent);
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
-  transition: transform 0.12s, filter 0.12s;
+  transition: all 0.15s;
 }
 .play-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+  filter: brightness(1.12);
 }
 .play-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  box-shadow: none;
 }
 .ip-box {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  font-family: monospace;
-  font-size: 14px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
   cursor: pointer;
+  transition: all 0.15s;
 }
 .ip-box:hover {
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--txt);
+  background: rgba(255, 255, 255, 0.03);
 }
 .ip-box .copy {
-  opacity: 0.7;
-}
-.hint {
+  opacity: 0.6;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
 }
 .status {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  min-height: 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  min-height: 16px;
 }
 .bar {
-  width: 360px;
-  height: 6px;
+  width: 320px;
+  height: 3px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
   overflow: hidden;
 }
 #bar-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--accent);
   transition: width 0.2s;
 }
 
@@ -168,7 +169,7 @@ main {
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: none;
 }
 .overlay.open {
@@ -179,20 +180,21 @@ main {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 340px;
-  background: #15151d;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 22px;
+  width: 300px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  padding: 20px;
   overflow-y: auto;
 }
 .drawer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 .drawer-head h2 {
-  font-size: 18px;
+  font-size: 15px;
+  font-weight: 600;
 }
 .drawer-head .icon-btn {
   position: static;
@@ -200,40 +202,37 @@ main {
 .cats {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 20px;
+  gap: 2px;
+  margin-bottom: 22px;
 }
 .cat {
   text-align: left;
-  padding: 11px 14px;
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.12s;
 }
 .cat:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--txt);
 }
 .cat.active {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  color: #fff;
-  border-color: transparent;
+  background: rgba(124, 92, 255, 0.14);
+  color: var(--accent);
 }
 .tab-content {
-  margin-bottom: 18px;
-  min-height: 90px;
+  min-height: 60px;
 }
 .tab-content > label {
   display: block;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 10px;
-}
-.tab-content .hint {
-  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 12px;
 }
 input[type='range'] {
   width: 100%;
@@ -242,29 +241,31 @@ input[type='range'] {
 .list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .list .item {
   padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
   font-size: 13px;
 }
 .list .empty {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  font-style: italic;
+  font-size: 12.5px;
+  color: var(--muted);
 }
 .ghost-btn {
   width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 24px;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  color: var(--muted);
+  font-size: 12.5px;
   cursor: pointer;
+  transition: all 0.15s;
 }
 .ghost-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--txt);
+  background: rgba(255, 255, 255, 0.04);
 }

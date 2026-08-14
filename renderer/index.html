@@ -50,19 +50,16 @@
 
         <div class="cat-body">
           <div class="tab-content" id="tab-ram">
-            <label>Mémoire allouée au jeu : <b id="ram-val">4</b> Go</label>
+            <label>Mémoire · <b id="ram-val">4</b> Go</label>
             <input id="ram" type="range" min="2" max="8" step="1" value="4" />
-            <div class="hint">Minimum 2 Go · Maximum 8 Go — c’est la vraie RAM du jeu.</div>
           </div>
 
           <div class="tab-content" id="tab-mods" hidden>
             <div id="mods-list" class="list"></div>
-            <div class="hint">Ces mods sont installés et actifs en jeu.</div>
           </div>
 
           <div class="tab-content" id="tab-shaders" hidden>
             <div id="shaders-list" class="list"></div>
-            <div class="hint">Shaders disponibles en jeu.</div>
           </div>
 
           <button id="send-logs" class="ghost-btn">Envoyer les logs (problème ?)</button>
