@@ -31,3 +31,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Pas de certificat de signature -> on désactive la signature auto (macOS)
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+  # Marque automatiquement la nouvelle version comme « Latest » (plus besoin de le faire à la main)
+  set-latest:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: gh release edit "${{ github.ref_name }}" --latest --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
