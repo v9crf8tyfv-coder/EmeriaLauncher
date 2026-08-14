@@ -59,12 +59,12 @@ function setupAutoUpdate() {
   // macOS non signé : l'auto-install ne marche pas -> on renvoie vers le téléchargement.
   autoUpdater.autoDownload = !isMac;
   autoUpdater.on('update-available', () => {
-    // 'updateInfo' = simple info, ne bloque PAS le bouton LANCER
+    // Maj dispo -> on BLOQUE LANCER sur tous les OS (Windows/Linux/Mac pareil)
     if (isMac) {
-      send('updateInfo', 'Nouvelle version dispo — télécharge-la 👉');
+      send('update', 'Nouvelle version dispo — télécharge-la 👉');
       shell.openExternal(RELEASES_URL).catch(() => {});
     } else {
-      send('updateInfo', 'Mise à jour disponible, téléchargement…');
+      send('update', 'Mise à jour disponible, téléchargement…');
     }
   });
   autoUpdater.on('download-progress', (p) =>

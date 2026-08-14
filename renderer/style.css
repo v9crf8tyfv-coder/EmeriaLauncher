@@ -40,6 +40,8 @@ header {
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--accent);
+  position: relative;
+  top: 26px; /* décalé un peu vers le bas */
 }
 .icon-btn {
   position: absolute;
