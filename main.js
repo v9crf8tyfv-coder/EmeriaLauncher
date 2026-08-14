@@ -53,9 +53,19 @@ function send(channel, data) {
 }
 
 // ---- Auto-update ----
+const RELEASES_URL = 'https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest';
 function setupAutoUpdate() {
-  autoUpdater.autoDownload = true;
-  autoUpdater.on('update-available', () => send('update', 'Mise à jour disponible, téléchargement…'));
+  const isMac = process.platform === 'darwin';
+  // macOS non signé : l'auto-install ne marche pas -> on renvoie vers le téléchargement.
+  autoUpdater.autoDownload = !isMac;
+  autoUpdater.on('update-available', () => {
+    if (isMac) {
+      send('update', 'Nouvelle version dispo — télécharge-la 👉');
+      shell.openExternal(RELEASES_URL).catch(() => {});
+    } else {
+      send('update', 'Mise à jour disponible, téléchargement…');
+    }
+  });
   autoUpdater.on('download-progress', (p) =>
     send('update', `Mise à jour du launcher… ${Math.round(p.percent)}%`),
   );
