@@ -50,6 +50,11 @@ window.api.onClosed(() => {
 
 // --- Retours du processus principal ---
 window.api.onStatus((s) => (statusEl.textContent = s));
+// Auto-update du launcher (affiché en bas)
+window.api.onUpdate((msg) => {
+  statusEl.textContent = msg;
+});
+
 window.api.onProgress((p) => {
   if (p && p.total) {
     const pct = Math.min(100, Math.round((p.task / p.total) * 100));

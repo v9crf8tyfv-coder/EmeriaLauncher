@@ -8,4 +8,5 @@ contextBridge.exposeInMainWorld('api', {
   onLog: (cb) => ipcRenderer.on('log', (_e, d) => cb(d)),
   onProgress: (cb) => ipcRenderer.on('progress', (_e, d) => cb(d)),
   onClosed: (cb) => ipcRenderer.on('closed', (_e, d) => cb(d)),
+  onUpdate: (cb) => ipcRenderer.on('update', (_e, d) => cb(d)),
 });

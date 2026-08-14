@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
+const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
 
 // ---- Config EmeriaMC ----
@@ -26,8 +27,27 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  setupAutoUpdate();
+});
 app.on('window-all-closed', () => app.quit());
+
+// ---- Auto-update du launcher (via GitHub Releases + latest.yml) ----
+function setupAutoUpdate() {
+  autoUpdater.autoDownload = true;
+  autoUpdater.on('update-available', () => send('update', 'Mise à jour disponible, téléchargement…'));
+  autoUpdater.on('download-progress', (p) =>
+    send('update', `Mise à jour du launcher… ${Math.round(p.percent)}%`),
+  );
+  autoUpdater.on('update-downloaded', () => {
+    send('update', 'Mise à jour prête — redémarrage…');
+    setTimeout(() => autoUpdater.quitAndInstall(), 2500);
+  });
+  // Silencieux si pas de maj / mode dev (npm start) / pas de release
+  autoUpdater.on('error', () => {});
+  autoUpdater.checkForUpdates().catch(() => {});
+}
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
