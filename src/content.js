@@ -5,7 +5,6 @@ const mods = [
   { name: 'Sodium (performances)' },
   { name: 'Iris (shaders)' },
   { name: 'Sodium Extra' },
-  { name: 'Terra' },
   { name: 'Easy NPC' },
   { name: 'Litematica' },
   { name: 'Zoomify' },
