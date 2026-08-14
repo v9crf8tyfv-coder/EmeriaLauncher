@@ -63,4 +63,19 @@ function patchShaderForMac(root) {
   }
 }
 
-module.exports = { syncMods, installConfigs, patchShaderForMac };
+/** Active ou désactive les shaders (édite config/iris.properties). */
+function setShaderEnabled(root, enabled) {
+  const file = path.join(root, 'config', 'iris.properties');
+  try {
+    let txt = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    txt = /enableShaders=/.test(txt)
+      ? txt.replace(/enableShaders=.*/g, `enableShaders=${enabled}`)
+      : txt + `\nenableShaders=${enabled}\n`;
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, txt);
+  } catch {
+    /* ignore */
+  }
+}
+
+module.exports = { syncMods, installConfigs, patchShaderForMac, setShaderEnabled };

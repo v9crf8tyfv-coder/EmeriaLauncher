@@ -264,6 +264,18 @@ input[type='range'] {
   width: 100%;
   accent-color: var(--accent);
 }
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--txt);
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.toggle-row input {
+  accent-color: var(--accent);
+}
 .list {
   display: flex;
   flex-direction: column;

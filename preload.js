@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   launch: () => ipcRenderer.invoke('launch'),
   getSettings: () => ipcRenderer.invoke('getSettings'),
   setRam: (v) => ipcRenderer.invoke('setRam', v),
+  setShader: (v) => ipcRenderer.invoke('setShader', v),
   copyIp: () => ipcRenderer.invoke('copyIp'),
   sendLogs: () => ipcRenderer.invoke('sendLogs'),
   // événements

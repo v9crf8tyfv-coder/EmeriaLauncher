@@ -5,7 +5,12 @@ const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
-const { syncMods, installConfigs, patchShaderForMac } = require('./src/install');
+const {
+  syncMods,
+  installConfigs,
+  patchShaderForMac,
+  setShaderEnabled,
+} = require('./src/install');
 const { ensureJava } = require('./src/java');
 const store = require('./src/store');
 const logger = require('./src/logger');
@@ -127,8 +132,10 @@ ipcMain.handle('getSettings', () => ({
   ram: store.get('ram', 4),
   mods: content.mods,
   shaders: content.shaders,
+  shaderEnabled: store.get('shaderEnabled', true),
   ip: SERVER_IP,
 }));
+ipcMain.handle('setShader', (_e, v) => store.set('shaderEnabled', !!v));
 ipcMain.handle('setRam', (_e, v) => {
   const n = Math.max(2, Math.min(8, Number(v) || 4));
   store.set('ram', n);
@@ -177,6 +184,7 @@ ipcMain.handle('launch', async () => {
   syncMods(bundled, MC_ROOT);
   installConfigs(bundled, MC_ROOT);
   patchShaderForMac(MC_ROOT); // désactive colored lighting sur Mac
+  setShaderEnabled(MC_ROOT, store.get('shaderEnabled', true)); // toggle shaders
   logger.log('mods synced');
 
   send('status', 'Téléchargement du jeu…');

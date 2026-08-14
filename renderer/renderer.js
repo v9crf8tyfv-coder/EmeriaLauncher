@@ -12,6 +12,7 @@ const ramVal = document.getElementById('ram-val');
 const modsList = document.getElementById('mods-list');
 const shadersList = document.getElementById('shaders-list');
 const sendLogsBtn = document.getElementById('send-logs');
+const shaderToggle = document.getElementById('shader-toggle');
 const accountMenu = document.getElementById('account-menu');
 const logoutBtn = document.getElementById('logout-btn');
 
@@ -121,9 +122,11 @@ async function loadSettings() {
   const s = await window.api.getSettings();
   ramInput.value = s.ram;
   ramVal.textContent = s.ram;
+  shaderToggle.checked = s.shaderEnabled;
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
 }
+shaderToggle.addEventListener('change', () => window.api.setShader(shaderToggle.checked));
 function renderList(el, items, emptyMsg) {
   el.innerHTML = '';
   if (!items || items.length === 0) {
