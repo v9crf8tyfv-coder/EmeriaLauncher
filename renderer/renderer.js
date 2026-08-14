@@ -12,6 +12,8 @@ const ramVal = document.getElementById('ram-val');
 const modsList = document.getElementById('mods-list');
 const shadersList = document.getElementById('shaders-list');
 const sendLogsBtn = document.getElementById('send-logs');
+const accountMenu = document.getElementById('account-menu');
+const logoutBtn = document.getElementById('logout-btn');
 
 let connected = false;
 
@@ -27,21 +29,49 @@ function setConnected(name, head) {
   statusEl.textContent = 'Prêt à jouer';
 }
 
+function setDisconnected() {
+  connected = false;
+  loginBtn.classList.remove('connected');
+  loginLabel.textContent = 'Se connecter';
+  headImg.hidden = true;
+  headImg.removeAttribute('src');
+  playBtn.disabled = true;
+  statusEl.textContent = 'Connecte-toi pour jouer';
+}
+
 // Reconnexion automatique au démarrage
 window.api.onSession((s) => {
   if (s && s.name) setConnected(s.name, s.head);
 });
 
-// Connexion manuelle
-loginBtn.addEventListener('click', async () => {
-  if (connected) return;
+// Clic sur la bulle : connecté → menu déconnexion, sinon → connexion
+loginBtn.addEventListener('click', async (e) => {
+  if (connected) {
+    e.stopPropagation();
+    accountMenu.hidden = !accountMenu.hidden;
+    return;
+  }
   loginLabel.textContent = 'Connexion…';
   try {
     const { name, head } = await window.api.login();
     setConnected(name, head);
-  } catch (e) {
+  } catch (err) {
     loginLabel.textContent = 'Se connecter';
-    statusEl.textContent = 'Échec de la connexion : ' + (e?.message || e);
+    statusEl.textContent = 'Échec de la connexion : ' + (err?.message || err);
+  }
+});
+
+// Déconnexion
+logoutBtn.addEventListener('click', async () => {
+  await window.api.logout();
+  accountMenu.hidden = true;
+  setDisconnected();
+});
+
+// Fermer le menu si on clique ailleurs
+document.addEventListener('click', (e) => {
+  if (!accountMenu.hidden && !loginBtn.contains(e.target) && !accountMenu.contains(e.target)) {
+    accountMenu.hidden = true;
   }
 });
 
