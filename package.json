@@ -1,10 +1,12 @@
 {
   "name": "emeria-launcher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
+  "author": "EmeriaMC",
   "scripts": {
     "start": "electron .",
+    "icon": "node build/make-icon.js",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win",
     "dist:linux": "electron-builder --linux",
@@ -25,20 +27,26 @@
     "files": ["main.js", "preload.js", "src/**", "renderer/**"],
     "mac": {
       "target": ["dmg", "zip"],
+      "icon": "build/icon.png",
+      "artifactName": "EmeriaMC-mac.${ext}",
       "category": "public.app-category.games"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": ["nsis"],
+      "icon": "build/icon.png",
+      "artifactName": "EmeriaMC-windows.${ext}"
     },
     "linux": {
       "target": ["AppImage"],
+      "artifactName": "EmeriaMC-linux.${ext}",
       "category": "Game"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "v9crf8tyfv-coder",
-        "repo": "EmeriaLauncher"
+        "repo": "EmeriaLauncher",
+        "releaseType": "release"
       }
     ]
   }
