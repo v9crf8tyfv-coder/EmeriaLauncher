@@ -1,0 +1,38 @@
+{
+  "name": "emeria-launcher",
+  "version": "0.1.0",
+  "description": "Launcher EmeriaMC — Fabric 1.21.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "dist": "electron-builder -mwl"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "minecraft-launcher-core": "^3.18.2",
+    "msmc": "^4.1.0"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "fr.emeria.launcher",
+    "productName": "EmeriaMC",
+    "files": ["main.js", "preload.js", "src/**", "renderer/**"],
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.games"
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Game"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+node_modules/
+dist/
+.emeria/
+.DS_Store

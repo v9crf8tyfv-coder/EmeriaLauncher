@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="style.css" />
+    <title>EmeriaMC</title>
+  </head>
+  <body>
+    <!-- Fond (noir pour l'instant, image plus tard) -->
+    <div class="bg"></div>
+
+    <header>
+      <div class="brand">EmeriaMC</div>
+      <button id="login" class="login-pill">
+        <span class="dot"></span>
+        <span id="login-label">Se connecter</span>
+      </button>
+    </header>
+
+    <main>
+      <button id="play" class="play-btn" disabled>LANCER</button>
+      <div id="status" class="status">Connecte-toi pour jouer</div>
+      <div class="bar"><div id="bar-fill"></div></div>
+    </main>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
