@@ -33,6 +33,13 @@
     "linux": {
       "target": ["AppImage"],
       "category": "Game"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "v9crf8tyfv-coder",
+        "repo": "EmeriaLauncher"
+      }
+    ]
   }
 }

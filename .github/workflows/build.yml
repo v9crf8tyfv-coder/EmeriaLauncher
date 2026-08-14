@@ -1,0 +1,33 @@
+name: Build Launcher
+
+# Se déclenche quand tu pousses un tag de version (ex : v0.1.0), ou à la main
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write # requis pour publier la Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Builder et publier
+        run: npx electron-builder --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pas de certificat de signature -> on désactive la signature auto (macOS)
+          CSC_IDENTITY_AUTO_DISCOVERY: false
