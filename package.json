@@ -26,7 +26,7 @@
     "appId": "fr.emeria.launcher",
     "productName": "EmeriaMC",
     "afterPack": "build/afterPack.js",
-    "files": ["main.js", "preload.js", "src/**", "renderer/**"],
+    "files": ["main.js", "preload.js", "src/**", "renderer/**", "content/**"],
     "mac": {
       "target": ["dmg", "zip"],
       "icon": "build/icon.png",

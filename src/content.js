@@ -1,16 +1,18 @@
 // Contenu affiché dans les Réglages (lecture seule pour les joueurs).
-// C'est ICI qu'on ajoute les mods / shaders (le « + » du launcher = ajouter une ligne ici).
+// Reflète ce qui est réellement installé / actif en jeu.
 
-// Mods installés par le launcher. Ex : { name: 'Sodium' }
+// Mods installés par le launcher (perfs + support shaders).
 const mods = [
-  // TODO : tes 2 mods (tu me donnes les noms) — ex :
-  // { name: 'NomDuMod1' },
-  // { name: 'NomDuMod2' },
+  { name: 'Fabric API' },
+  { name: 'Sodium' },
+  { name: 'Iris (shaders)' },
+  { name: 'Sodium Extra' },
+  // TODO : tes mods custom plus tard
 ];
 
-// Shaders proposés. Le nom est obligatoire (tu me le fournis). Ex : { name: 'BSL' }
+// Shaders disponibles en jeu.
 const shaders = [
-  // { name: 'NomDuShader' },
+  { name: 'Complementary Reimagined' },
 ];
 
 module.exports = { mods, shaders };

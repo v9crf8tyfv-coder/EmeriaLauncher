@@ -124,6 +124,16 @@ settingsClose.addEventListener('click', () => (settingsOverlay.hidden = true));
 settingsOverlay.addEventListener('click', (e) => {
   if (e.target === settingsOverlay) settingsOverlay.hidden = true;
 });
+// Onglets des réglages
+document.querySelectorAll('.tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach((c) => (c.hidden = true));
+    document.getElementById('tab-' + tab.dataset.tab).hidden = false;
+  });
+});
+
 ramInput.addEventListener('input', () => (ramVal.textContent = ramInput.value));
 ramInput.addEventListener('change', () => window.api.setRam(Number(ramInput.value)));
 sendLogsBtn.addEventListener('click', async () => {

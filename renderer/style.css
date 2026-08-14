@@ -194,14 +194,42 @@ main {
 .panel-head .icon-btn {
   position: static;
 }
-.section {
-  margin-bottom: 20px;
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
 }
-.section > label {
+.tab {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+.tab.active {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #fff;
+  border-color: transparent;
+}
+.tab-content {
+  margin-bottom: 18px;
+  min-height: 90px;
+}
+.tab-content > label {
   display: block;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+.tab-content .hint {
+  margin-top: 10px;
 }
 input[type='range'] {
   width: 100%;

@@ -5,6 +5,7 @@ const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
+const { downloadMods, installBundledContent } = require('./src/install');
 const store = require('./src/store');
 const logger = require('./src/logger');
 const content = require('./src/content');
@@ -117,7 +118,7 @@ ipcMain.handle('getSettings', () => ({
   ip: SERVER_IP,
 }));
 ipcMain.handle('setRam', (_e, v) => {
-  const n = Math.max(2, Math.min(6, Number(v) || 4));
+  const n = Math.max(2, Math.min(8, Number(v) || 4));
   store.set('ram', n);
   return n;
 });
@@ -151,6 +152,13 @@ ipcMain.handle('launch', async () => {
 
   send('status', 'Installation de Fabric…');
   const versionId = await installFabric(MC_ROOT, MC_VERSION);
+
+  send('status', 'Installation des mods & shaders…');
+  await downloadMods(MC_ROOT, MC_VERSION, (m) => {
+    logger.log(m);
+    send('status', m);
+  });
+  installBundledContent(path.join(__dirname, 'content'), MC_ROOT);
 
   send('status', 'Téléchargement du jeu…');
   const launcher = new Client();
