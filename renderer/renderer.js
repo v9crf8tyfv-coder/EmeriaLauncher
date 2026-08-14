@@ -118,19 +118,19 @@ function renderList(el, items, emptyMsg) {
 }
 settingsBtn.addEventListener('click', async () => {
   await loadSettings();
-  settingsOverlay.hidden = false;
+  settingsOverlay.classList.add('open');
 });
-settingsClose.addEventListener('click', () => (settingsOverlay.hidden = true));
+settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('open'));
 settingsOverlay.addEventListener('click', (e) => {
-  if (e.target === settingsOverlay) settingsOverlay.hidden = true;
+  if (e.target === settingsOverlay) settingsOverlay.classList.remove('open'); // clic sur le fond
 });
-// Onglets des réglages
-document.querySelectorAll('.tab').forEach((tab) => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
-    tab.classList.add('active');
+// Catégories des réglages (liste à gauche)
+document.querySelectorAll('.cat').forEach((cat) => {
+  cat.addEventListener('click', () => {
+    document.querySelectorAll('.cat').forEach((c) => c.classList.remove('active'));
+    cat.classList.add('active');
     document.querySelectorAll('.tab-content').forEach((c) => (c.hidden = true));
-    document.getElementById('tab-' + tab.dataset.tab).hidden = false;
+    document.getElementById('tab-' + cat.dataset.tab).hidden = false;
   });
 });
 

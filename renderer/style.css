@@ -164,56 +164,60 @@ main {
   transition: width 0.2s;
 }
 
-/* Réglages */
+/* Réglages — tiroir gauche */
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
 }
-.panel {
-  width: 420px;
-  max-height: 80vh;
-  overflow-y: auto;
+.overlay.open {
+  display: block;
+}
+.drawer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 340px;
   background: #15151d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   padding: 22px;
+  overflow-y: auto;
 }
-.panel-head {
+.drawer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-}
-.panel-head h2 {
-  font-size: 18px;
-}
-.panel-head .icon-btn {
-  position: static;
-}
-.tabs {
-  display: flex;
-  gap: 6px;
   margin-bottom: 18px;
 }
-.tab {
-  flex: 1;
-  padding: 9px 0;
+.drawer-head h2 {
+  font-size: 18px;
+}
+.drawer-head .icon-btn {
+  position: static;
+}
+.cats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.cat {
+  text-align: left;
+  padding: 11px 14px;
   border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
-.tab:hover {
+.cat:hover {
   background: rgba(255, 255, 255, 0.09);
 }
-.tab.active {
+.cat.active {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
   border-color: transparent;
