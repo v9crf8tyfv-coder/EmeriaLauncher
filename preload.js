@@ -1,11 +1,17 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Pont sécurisé entre l'interface (renderer) et le processus principal
 contextBridge.exposeInMainWorld('api', {
+  // actions
   login: () => ipcRenderer.invoke('login'),
-  launch: (opts) => ipcRenderer.invoke('launch', opts),
+  logout: () => ipcRenderer.invoke('logout'),
+  launch: () => ipcRenderer.invoke('launch'),
+  getSettings: () => ipcRenderer.invoke('getSettings'),
+  setRam: (v) => ipcRenderer.invoke('setRam', v),
+  copyIp: () => ipcRenderer.invoke('copyIp'),
+  sendLogs: () => ipcRenderer.invoke('sendLogs'),
+  // événements
+  onSession: (cb) => ipcRenderer.on('session', (_e, d) => cb(d)),
   onStatus: (cb) => ipcRenderer.on('status', (_e, d) => cb(d)),
-  onLog: (cb) => ipcRenderer.on('log', (_e, d) => cb(d)),
   onProgress: (cb) => ipcRenderer.on('progress', (_e, d) => cb(d)),
   onClosed: (cb) => ipcRenderer.on('closed', (_e, d) => cb(d)),
   onUpdate: (cb) => ipcRenderer.on('update', (_e, d) => cb(d)),

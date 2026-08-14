@@ -1,6 +1,6 @@
 {
   "name": "emeria-launcher",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
   "author": "EmeriaMC",
@@ -25,6 +25,7 @@
   "build": {
     "appId": "fr.emeria.launcher",
     "productName": "EmeriaMC",
+    "afterPack": "build/afterPack.js",
     "files": ["main.js", "preload.js", "src/**", "renderer/**"],
     "mac": {
       "target": ["dmg", "zip"],

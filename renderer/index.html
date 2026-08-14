@@ -2,27 +2,67 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>EmeriaMC</title>
   </head>
   <body>
-    <!-- Fond (noir pour l'instant, image plus tard) -->
     <div class="bg"></div>
 
     <header>
+      <button id="settings-btn" class="icon-btn" title="Réglages">⚙</button>
       <div class="brand">EmeriaMC</div>
       <button id="login" class="login-pill">
         <span class="dot"></span>
+        <img id="head" class="head" alt="" hidden />
         <span id="login-label">Se connecter</span>
       </button>
     </header>
 
     <main>
       <button id="play" class="play-btn" disabled>LANCER</button>
+
+      <button id="ip-box" class="ip-box" title="Cliquer pour copier">
+        <span id="ip-text">emeriamc.mine.gg:10006</span>
+        <span class="copy">📋</span>
+      </button>
+      <div class="hint">
+        Une fois lancé, cliquez sur <b>Multijoueur</b>, puis saisissez l’IP.
+      </div>
+
       <div id="status" class="status">Connecte-toi pour jouer</div>
       <div class="bar"><div id="bar-fill"></div></div>
     </main>
+
+    <!-- Panneau Réglages -->
+    <div id="settings" class="overlay" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Réglages</h2>
+          <button id="settings-close" class="icon-btn">✕</button>
+        </div>
+
+        <div class="section">
+          <label>Mémoire (RAM) : <b id="ram-val">4</b> Go</label>
+          <input id="ram" type="range" min="2" max="6" step="1" value="4" />
+        </div>
+
+        <div class="section">
+          <label>Mods</label>
+          <div id="mods-list" class="list"></div>
+        </div>
+
+        <div class="section">
+          <label>Shaders</label>
+          <div id="shaders-list" class="list"></div>
+        </div>
+
+        <button id="send-logs" class="ghost-btn">Envoyer les logs (problème ?)</button>
+      </div>
+    </div>
 
     <script src="renderer.js"></script>
   </body>
