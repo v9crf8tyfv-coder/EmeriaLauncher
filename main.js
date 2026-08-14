@@ -5,7 +5,7 @@ const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
-const { downloadMods, installBundledContent } = require('./src/install');
+const { syncMods, installConfigs } = require('./src/install');
 const store = require('./src/store');
 const logger = require('./src/logger');
 const content = require('./src/content');
@@ -154,11 +154,10 @@ ipcMain.handle('launch', async () => {
   const versionId = await installFabric(MC_ROOT, MC_VERSION);
 
   send('status', 'Installation des mods & shaders…');
-  await downloadMods(MC_ROOT, MC_VERSION, (m) => {
-    logger.log(m);
-    send('status', m);
-  });
-  installBundledContent(path.join(__dirname, 'content'), MC_ROOT);
+  const bundled = path.join(__dirname, 'content');
+  syncMods(bundled, MC_ROOT);
+  installConfigs(bundled, MC_ROOT);
+  logger.log('mods synced');
 
   send('status', 'Téléchargement du jeu…');
   const launcher = new Client();

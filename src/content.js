@@ -1,8 +1,16 @@
 // Contenu affiché dans les Réglages (lecture seule pour les joueurs).
 
-// Mods custom : pour plus tard.
+// Mods installés par le launcher (les principaux, actifs en jeu).
 const mods = [
-  // { name: 'NomDuMod' },
+  { name: 'Sodium (performances)' },
+  { name: 'Iris (shaders)' },
+  { name: 'Sodium Extra' },
+  { name: 'Terra' },
+  { name: 'Easy NPC' },
+  { name: 'Litematica' },
+  { name: 'Zoomify' },
+  { name: 'FlySpeed' },
+  { name: 'Inventory Weight' },
 ];
 
 // Shaders disponibles en jeu.
