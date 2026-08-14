@@ -26,23 +26,26 @@ loginBtn.addEventListener('click', async () => {
 // --- Lancer le jeu ---
 playBtn.addEventListener('click', async () => {
   playBtn.disabled = true;
+  playBtn.textContent = 'JEU EN COURS';
   statusEl.textContent = 'Démarrage…';
   try {
     await window.api.launch({ ram: 4 });
-    statusEl.textContent = 'Jeu lancé ! 🎮';
+    statusEl.textContent = 'Jeu en cours 🎮';
     barFill.style.width = '0%';
-    playBtn.disabled = false; // on peut relancer
+    // Le bouton reste « JEU EN COURS » + désactivé tant que le jeu tourne.
   } catch (e) {
     statusEl.textContent = 'Erreur : ' + (e?.message || e);
+    playBtn.textContent = 'LANCER';
     playBtn.disabled = false;
   }
 });
 
-// Le jeu s'est fermé -> on remet l'état prêt
+// Le jeu s'est fermé -> on redonne « LANCER » (si toujours connecté)
 window.api.onClosed(() => {
-  statusEl.textContent = 'Prêt à jouer';
+  statusEl.textContent = connected ? 'Prêt à jouer' : 'Connecte-toi pour jouer';
   barFill.style.width = '0%';
-  playBtn.disabled = false;
+  playBtn.textContent = 'LANCER';
+  playBtn.disabled = !connected;
 });
 
 // --- Retours du processus principal ---
