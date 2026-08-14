@@ -1,6 +1,6 @@
 {
   "name": "emeria-launcher",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
   "author": "EmeriaMC",
@@ -16,7 +16,9 @@
   "dependencies": {
     "minecraft-launcher-core": "^3.18.2",
     "msmc": "^4.1.0",
-    "electron-updater": "^6.3.9"
+    "electron-updater": "^6.3.9",
+    "adm-zip": "^0.5.16",
+    "tar": "^7.4.3"
   },
   "devDependencies": {
     "electron": "^32.0.0",

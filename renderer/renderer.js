@@ -99,7 +99,12 @@ window.api.onClosed(() => {
 
 // Statut / progression / maj
 window.api.onStatus((s) => (statusEl.textContent = s));
-window.api.onUpdate((msg) => (statusEl.textContent = msg));
+// Pendant une mise à jour : on bloque le lancement
+window.api.onUpdate((msg) => {
+  statusEl.textContent = msg;
+  playBtn.disabled = true;
+  playBtn.textContent = 'MISE À JOUR…';
+});
 window.api.onProgress((p) => {
   if (p && p.total) {
     const pct = Math.min(100, Math.round((p.task / p.total) * 100));

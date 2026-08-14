@@ -6,6 +6,7 @@ const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
 const { syncMods, installConfigs } = require('./src/install');
+const { ensureJava } = require('./src/java');
 const store = require('./src/store');
 const logger = require('./src/logger');
 const content = require('./src/content');
@@ -39,7 +40,7 @@ app.whenReady().then(() => {
   logger.init();
   logger.log('launcher start', app.getVersion());
   createWindow();
-  setupAutoUpdate();
+  if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   mainWindow.webContents.once('did-finish-load', trySilentLogin);
 });
 app.on('window-all-closed', () => app.quit());
@@ -150,6 +151,13 @@ ipcMain.handle('launch', async () => {
   const ram = store.get('ram', 4);
   logger.log('launch start ram=' + ram);
 
+  send('status', 'Vérification de Java…');
+  const javaPath = await ensureJava((m) => {
+    logger.log(m);
+    send('status', m);
+  });
+  logger.log('java=' + javaPath);
+
   send('status', 'Installation de Fabric…');
   const versionId = await installFabric(MC_ROOT, MC_VERSION);
 
@@ -174,6 +182,7 @@ ipcMain.handle('launch', async () => {
     root: MC_ROOT,
     version: { number: MC_VERSION, type: 'release', custom: versionId },
     memory: { max: `${ram}G`, min: '2G' },
+    javaPath, // Java du launcher (ignore celui du système -> aucun conflit)
     quickPlay: { type: 'multiplayer', identifier: SERVER_IP }, // connexion directe
   });
   logger.log('launch spawned');
