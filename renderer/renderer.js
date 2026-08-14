@@ -3,7 +3,6 @@ const loginLabel = document.getElementById('login-label');
 const headImg = document.getElementById('head');
 const playBtn = document.getElementById('play');
 const statusEl = document.getElementById('status');
-const barFill = document.getElementById('bar-fill');
 
 const settingsBtn = document.getElementById('settings-btn');
 const settingsOverlay = document.getElementById('settings');
@@ -54,7 +53,6 @@ playBtn.addEventListener('click', async () => {
   try {
     await window.api.launch();
     statusEl.textContent = 'Jeu en cours 🎮';
-    barFill.style.width = '0%';
   } catch (e) {
     statusEl.textContent = 'Erreur : ' + (e?.message || e);
     playBtn.textContent = 'LANCER';
@@ -65,7 +63,6 @@ playBtn.addEventListener('click', async () => {
 // Le jeu se ferme -> LANCER revient
 window.api.onClosed(() => {
   statusEl.textContent = connected ? 'Prêt à jouer' : 'Connecte-toi pour jouer';
-  barFill.style.width = '0%';
   playBtn.textContent = 'LANCER';
   playBtn.disabled = !connected;
 });
@@ -76,7 +73,6 @@ window.api.onUpdate((msg) => (statusEl.textContent = msg));
 window.api.onProgress((p) => {
   if (p && p.total) {
     const pct = Math.min(100, Math.round((p.task / p.total) * 100));
-    barFill.style.width = pct + '%';
     statusEl.textContent = `${p.type || 'Téléchargement'} — ${pct}%`;
   }
 });
