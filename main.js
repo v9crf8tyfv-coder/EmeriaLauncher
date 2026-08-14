@@ -5,7 +5,7 @@ const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
-const { syncMods, installConfigs } = require('./src/install');
+const { syncMods, installConfigs, patchShaderForMac } = require('./src/install');
 const { ensureJava } = require('./src/java');
 const store = require('./src/store');
 const logger = require('./src/logger');
@@ -59,11 +59,12 @@ function setupAutoUpdate() {
   // macOS non signé : l'auto-install ne marche pas -> on renvoie vers le téléchargement.
   autoUpdater.autoDownload = !isMac;
   autoUpdater.on('update-available', () => {
+    // 'updateInfo' = simple info, ne bloque PAS le bouton LANCER
     if (isMac) {
-      send('update', 'Nouvelle version dispo — télécharge-la 👉');
+      send('updateInfo', 'Nouvelle version dispo — télécharge-la 👉');
       shell.openExternal(RELEASES_URL).catch(() => {});
     } else {
-      send('update', 'Mise à jour disponible, téléchargement…');
+      send('updateInfo', 'Mise à jour disponible, téléchargement…');
     }
   });
   autoUpdater.on('download-progress', (p) =>
@@ -175,6 +176,7 @@ ipcMain.handle('launch', async () => {
   const bundled = path.join(__dirname, 'content');
   syncMods(bundled, MC_ROOT);
   installConfigs(bundled, MC_ROOT);
+  patchShaderForMac(MC_ROOT); // désactive colored lighting sur Mac
   logger.log('mods synced');
 
   send('status', 'Téléchargement du jeu…');

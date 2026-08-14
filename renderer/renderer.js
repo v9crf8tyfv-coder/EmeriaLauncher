@@ -99,7 +99,11 @@ window.api.onClosed(() => {
 
 // Statut / progression / maj
 window.api.onStatus((s) => (statusEl.textContent = s));
-// Pendant une mise à jour : on bloque le lancement
+// Info de maj (Mac / dispo) : on affiche mais on NE bloque PAS le lancement
+window.api.onUpdateInfo((msg) => {
+  statusEl.textContent = msg;
+});
+// Vraie maj en cours (Windows/Linux qui se télécharge) : on bloque le lancement
 window.api.onUpdate((msg) => {
   statusEl.textContent = msg;
   playBtn.disabled = true;

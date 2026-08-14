@@ -40,4 +40,27 @@ function installConfigs(bundledDir, root) {
   }
 }
 
-module.exports = { syncMods, installConfigs };
+/**
+ * macOS : désactive « Colored Lighting » du shader (les drivers Apple ne le supportent pas).
+ * Le shader reste actif, seule cette option est coupée -> plus d'« Important Error ».
+ */
+function patchShaderForMac(root) {
+  if (process.platform !== 'darwin') return;
+  const dir = path.join(root, 'shaderpacks');
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.txt')) continue;
+    const file = path.join(dir, f);
+    try {
+      let txt = fs.readFileSync(file, 'utf8');
+      txt = /COLORED_LIGHTING=/.test(txt)
+        ? txt.replace(/COLORED_LIGHTING=.*/g, 'COLORED_LIGHTING=0')
+        : txt + '\nCOLORED_LIGHTING=0\n';
+      fs.writeFileSync(file, txt);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+module.exports = { syncMods, installConfigs, patchShaderForMac };
