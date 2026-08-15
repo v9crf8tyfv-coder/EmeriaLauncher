@@ -120,8 +120,11 @@ window.api.onProgress((p) => {
 // ---- Réglages ----
 async function loadSettings() {
   const s = await window.api.getSettings();
+  ramInput.max = s.maxRam; // max = RAM du PC détectée
   ramInput.value = s.ram;
   ramVal.textContent = s.ram;
+  const hint = document.getElementById('ram-max-hint');
+  if (hint) hint.textContent = `Max détecté sur ton PC : ${s.maxRam} Go`;
   shaderToggle.checked = s.shaderEnabled;
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');

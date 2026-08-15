@@ -1,6 +1,13 @@
 const { app, BrowserWindow, ipcMain, clipboard, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+
+// RAM max qu'on autorise à allouer au jeu = RAM totale du PC - 2 Go (marge OS), borné [2, 16]
+function maxRamGB() {
+  const totalGB = Math.round(os.totalmem() / 1024 ** 3);
+  return Math.max(2, Math.min(16, totalGB - 2));
+}
 const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
@@ -128,16 +135,20 @@ ipcMain.handle('logout', () => {
 });
 
 // ---- Réglages ----
-ipcMain.handle('getSettings', () => ({
-  ram: store.get('ram', 4),
-  mods: content.mods,
-  shaders: content.shaders,
-  shaderEnabled: store.get('shaderEnabled', true),
-  ip: SERVER_IP,
-}));
+ipcMain.handle('getSettings', () => {
+  const max = maxRamGB();
+  return {
+    ram: Math.min(store.get('ram', 4), max),
+    maxRam: max,
+    mods: content.mods,
+    shaders: content.shaders,
+    shaderEnabled: store.get('shaderEnabled', true),
+    ip: SERVER_IP,
+  };
+});
 ipcMain.handle('setShader', (_e, v) => store.set('shaderEnabled', !!v));
 ipcMain.handle('setRam', (_e, v) => {
-  const n = Math.max(2, Math.min(8, Number(v) || 4));
+  const n = Math.max(2, Math.min(maxRamGB(), Number(v) || 4));
   store.set('ram', n);
   return n;
 });
@@ -166,7 +177,7 @@ ipcMain.handle('sendLogs', async () => {
 // ---- Lancer le jeu (connexion directe au serveur) ----
 ipcMain.handle('launch', async () => {
   if (!mcToken) throw new Error('Non connecté');
-  const ram = store.get('ram', 4);
+  const ram = Math.min(store.get('ram', 4), maxRamGB());
   logger.log('launch start ram=' + ram);
 
   send('status', 'Vérification de Java…');
