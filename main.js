@@ -71,11 +71,12 @@ function setupAutoUpdate() {
   // macOS non signé : l'auto-install ne marche pas -> on renvoie vers le téléchargement.
   autoUpdater.autoDownload = !isMac;
   autoUpdater.on('update-available', () => {
-    // Maj dispo -> on BLOQUE LANCER sur tous les OS (Windows/Linux/Mac pareil)
     if (isMac) {
-      send('update', 'Nouvelle version dispo — télécharge-la 👉');
-      shell.openExternal(RELEASES_URL).catch(() => {});
+      // Mac non signé : on NE bloque PAS LANCER (canal 'updateInfo'). Le joueur
+      // peut jouer tout de suite ; il re-téléchargera quand il veut.
+      send('updateInfo', 'Nouvelle version dispo — pense à re-télécharger le launcher');
     } else {
+      // Windows/Linux : la maj se télécharge et s'installe -> on bloque LANCER le temps du dl.
       send('update', 'Mise à jour disponible, téléchargement…');
     }
   });
