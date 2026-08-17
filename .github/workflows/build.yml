@@ -65,7 +65,8 @@ jobs:
                  --repo "${{ github.repository }}" \
                  --title "${{ github.ref_name }}" \
                  --notes "Mise à jour ${{ github.ref_name }}"
-          find artifacts -type f -print0 | xargs -0 gh release upload "${{ github.ref_name }}" --repo "${{ github.repository }}" --clobber
+          find artifacts -type f \( -name '*.exe' -o -name '*.dmg' -o -name '*.zip' -o -name '*.AppImage' -o -name 'latest*.yml' -o -name '*.blockmap' \) -print0 \
+            | xargs -0 gh release upload "${{ github.ref_name }}" --repo "${{ github.repository }}" --clobber
           gh release edit "${{ github.ref_name }}" --latest --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
