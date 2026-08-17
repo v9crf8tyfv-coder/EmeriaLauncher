@@ -1,6 +1,6 @@
 {
   "name": "emeria-launcher",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
   "author": "EmeriaMC",

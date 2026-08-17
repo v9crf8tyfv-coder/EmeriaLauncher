@@ -10,26 +10,8 @@ permissions:
   contents: write # requis pour publier la Release
 
 jobs:
-  # 1) On crée la Release UNE SEULE FOIS, avant les builds.
-  #    Comme ça les 3 OS ne se battent plus pour la créer en même temps.
-  create-release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Créer la release si elle n'existe pas
-        run: |
-          gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" \
-            || gh release create "${{ github.ref_name }}" \
-                 --repo "${{ github.repository }}" \
-                 --title "${{ github.ref_name }}" \
-                 --notes "Mise à jour ${{ github.ref_name }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # 2) Chaque OS build et dépose SON fichier dans la release déjà créée.
+  # 1) Chaque OS BUILD son installeur SANS publier (donc aucune course pour créer la release).
   build:
-    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -45,21 +27,45 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      - name: Builder et publier
-        run: npx electron-builder --publish always
+      - name: Builder (sans publier)
+        run: npx electron-builder --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Pas de certificat de signature -> on désactive la signature auto (macOS)
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-  # 3) Marque automatiquement la nouvelle version comme « Latest »
-  set-latest:
+      - name: Récupérer les fichiers construits
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          if-no-files-found: ignore
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.yml
+            dist/*.blockmap
+
+  # 2) UN SEUL job rassemble tout et publie la release (impossible d'avoir un conflit).
+  release:
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - run: gh release edit "${{ github.ref_name }}" --latest --repo "${{ github.repository }}"
+      - name: Télécharger tous les fichiers construits
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Créer la release + déposer les fichiers + marquer « Latest »
+        run: |
+          gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+            || gh release create "${{ github.ref_name }}" \
+                 --repo "${{ github.repository }}" \
+                 --title "${{ github.ref_name }}" \
+                 --notes "Mise à jour ${{ github.ref_name }}"
+          find artifacts -type f -print0 | xargs -0 gh release upload "${{ github.ref_name }}" --repo "${{ github.repository }}" --clobber
+          gh release edit "${{ github.ref_name }}" --latest --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
