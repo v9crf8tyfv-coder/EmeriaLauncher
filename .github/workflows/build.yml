@@ -10,8 +10,28 @@ permissions:
   contents: write # requis pour publier la Release
 
 jobs:
+  # 1) On crée la Release UNE SEULE FOIS, avant les builds.
+  #    Comme ça les 3 OS ne se battent plus pour la créer en même temps.
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Créer la release si elle n'existe pas
+        run: |
+          gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+            || gh release create "${{ github.ref_name }}" \
+                 --repo "${{ github.repository }}" \
+                 --title "${{ github.ref_name }}" \
+                 --notes "Mise à jour ${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 2) Chaque OS build et dépose SON fichier dans la release déjà créée.
   build:
+    needs: create-release
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -32,7 +52,7 @@ jobs:
           # Pas de certificat de signature -> on désactive la signature auto (macOS)
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-  # Marque automatiquement la nouvelle version comme « Latest » (plus besoin de le faire à la main)
+  # 3) Marque automatiquement la nouvelle version comme « Latest »
   set-latest:
     needs: build
     runs-on: ubuntu-latest
