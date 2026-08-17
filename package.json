@@ -1,6 +1,6 @@
 {
   "name": "emeria-launcher",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
   "author": "EmeriaMC",
@@ -28,20 +28,33 @@
     "appId": "fr.emeria.launcher",
     "productName": "EmeriaMC",
     "afterPack": "build/afterPack.js",
-    "files": ["main.js", "preload.js", "src/**", "renderer/**", "content/**"],
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**",
+      "renderer/**",
+      "content/**"
+    ],
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "build/icon.png",
       "artifactName": "EmeriaMC-mac.${ext}",
       "category": "public.app-category.games"
     },
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icon.png",
       "artifactName": "EmeriaMC-windows.${ext}"
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "artifactName": "EmeriaMC-linux.${ext}",
       "category": "Game"
     },
