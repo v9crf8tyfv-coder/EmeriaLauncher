@@ -26,17 +26,31 @@ function syncMods(bundledDir, root) {
 }
 
 /** Copie configs + shaderpacks fournis (sans écraser, pour garder les réglages joueur). */
+/** Copie récursive from -> to. overwrite=false : garde les réglages perso du joueur. */
+function copyRecursive(from, to, overwrite) {
+  fs.mkdirSync(to, { recursive: true });
+  for (const name of fs.readdirSync(from)) {
+    const src = path.join(from, name);
+    const dst = path.join(to, name);
+    if (fs.statSync(src).isDirectory()) {
+      copyRecursive(src, dst, overwrite);
+    } else if (overwrite || !fs.existsSync(dst)) {
+      fs.copyFileSync(src, dst);
+    }
+  }
+}
+
 function installConfigs(bundledDir, root) {
   for (const sub of ['config', 'shaderpacks']) {
     const from = path.join(bundledDir, sub);
     if (!fs.existsSync(from)) continue;
-    const to = path.join(root, sub);
-    fs.mkdirSync(to, { recursive: true });
-    for (const name of fs.readdirSync(from)) {
-      const dst = path.join(to, name);
-      if (fs.existsSync(dst)) continue;
-      fs.copyFileSync(path.join(from, name), dst);
-    }
+    copyRecursive(from, path.join(root, sub), false); // sous-dossiers gérés (ex: config/xaero/...)
+  }
+  // options.txt (touches + réglages par défaut) — copié au 1er lancement seulement.
+  const optSrc = path.join(bundledDir, 'options.txt');
+  const optDst = path.join(root, 'options.txt');
+  if (fs.existsSync(optSrc) && !fs.existsSync(optDst)) {
+    fs.copyFileSync(optSrc, optDst);
   }
 }
 
