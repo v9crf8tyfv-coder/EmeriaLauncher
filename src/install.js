@@ -92,4 +92,29 @@ function setShaderEnabled(root, enabled) {
   }
 }
 
-module.exports = { syncMods, installConfigs, patchShaderForMac, setShaderEnabled };
+/**
+ * Axiom (mod optionnel du staff build) : présent dans content/optional/axiom mais PAS
+ * synchronisé automatiquement. Installé dans mods/ seulement si `enabled`, sinon retiré.
+ */
+function setAxiomInstalled(bundledDir, root, enabled) {
+  const to = path.join(root, 'mods');
+  fs.mkdirSync(to, { recursive: true });
+  // Retire toute version d'Axiom déjà présente
+  for (const f of fs.readdirSync(to)) {
+    if (/axiom/i.test(f) && f.endsWith('.jar')) {
+      try {
+        fs.unlinkSync(path.join(to, f));
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  if (!enabled) return;
+  const from = path.join(bundledDir, 'optional', 'axiom');
+  if (!fs.existsSync(from)) return;
+  for (const f of fs.readdirSync(from)) {
+    if (f.endsWith('.jar')) fs.copyFileSync(path.join(from, f), path.join(to, f));
+  }
+}
+
+module.exports = { syncMods, installConfigs, patchShaderForMac, setShaderEnabled, setAxiomInstalled };

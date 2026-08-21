@@ -27,6 +27,7 @@
 
     <main>
       <button id="play" class="play-btn" disabled>LANCER</button>
+      <button id="update-btn" class="update-btn" hidden>⬇ Mettre à jour le launcher</button>
       <div id="status" class="status">Connecte-toi pour jouer</div>
     </main>
 
@@ -42,6 +43,7 @@
           <button class="cat active" data-tab="ram">RAM</button>
           <button class="cat" data-tab="mods">Mods</button>
           <button class="cat" data-tab="shaders">Shaders</button>
+          <button class="cat" data-tab="axiom" id="cat-axiom" hidden>Axiom</button>
         </nav>
 
         <div class="cat-body">
@@ -61,6 +63,14 @@
               <span>Activer les shaders</span>
             </label>
             <div id="shaders-list" class="list"></div>
+          </div>
+
+          <div class="tab-content" id="tab-axiom" hidden>
+            <label class="toggle-row">
+              <input type="checkbox" id="axiom-toggle" />
+              <span>Activer Axiom (staff build)</span>
+            </label>
+            <div class="hint">Réservé au staff build. Prend effet au prochain lancement.</div>
           </div>
 
           <button id="send-logs" class="ghost-btn">Envoyer les logs (problème ?)</button>

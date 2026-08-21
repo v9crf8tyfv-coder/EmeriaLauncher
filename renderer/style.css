@@ -312,3 +312,17 @@ input[type='range'] {
   color: var(--txt);
   background: rgba(255, 255, 255, 0.04);
 }
+
+/* Bouton "Mettre à jour" (affiché quand une maj Mac est dispo) */
+.update-btn {
+  margin-top: 10px;
+  padding: 8px 18px;
+  border: 1px solid #6aa9ff;
+  background: rgba(106, 169, 255, 0.12);
+  color: #cfe3ff;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.update-btn:hover { background: rgba(106, 169, 255, 0.25); }

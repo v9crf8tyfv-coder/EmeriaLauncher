@@ -15,8 +15,8 @@ const { installFabric } = require('./src/fabric');
 const {
   syncMods,
   installConfigs,
-  patchShaderForMac,
   setShaderEnabled,
+  setAxiomInstalled,
 } = require('./src/install');
 const { ensureJava } = require('./src/java');
 const store = require('./src/store');
@@ -34,6 +34,12 @@ const LOG_WEBHOOK = '';
 let mainWindow;
 let mcToken = null; // token pour minecraft-launcher-core
 const authManager = new Auth('select_account');
+
+// Comptes autorisés à voir/activer Axiom (staff build). Insensible à la casse.
+const AXIOM_ALLOWED = ['ixtazzking', 'xtazzking', 'orionyx84'];
+function canUseAxiom() {
+  return !!(mcToken && AXIOM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -72,9 +78,10 @@ function setupAutoUpdate() {
   autoUpdater.autoDownload = !isMac;
   autoUpdater.on('update-available', () => {
     if (isMac) {
-      // Mac non signé : on NE bloque PAS LANCER (canal 'updateInfo'). Le joueur
-      // peut jouer tout de suite ; il re-téléchargera quand il veut.
-      send('updateInfo', 'Nouvelle version dispo — pense à re-télécharger le launcher');
+      // Mac non signé : on NE bloque PAS LANCER. On affiche un bouton "Mettre à jour"
+      // qui télécharge le bon launcher automatiquement (plus besoin du Drive/GitHub).
+      send('updateInfo', 'Nouvelle version dispo');
+      send('updateButton', true);
     } else {
       // Windows/Linux : la maj se télécharge et s'installe -> on bloque LANCER le temps du dl.
       send('update', 'Mise à jour disponible, téléchargement…');
@@ -144,10 +151,18 @@ ipcMain.handle('getSettings', () => {
     mods: content.mods,
     shaders: content.shaders,
     shaderEnabled: store.get('shaderEnabled', true),
+    canUseAxiom: canUseAxiom(),               // toggle Axiom visible seulement pour le staff build
+    axiomEnabled: store.get('axiomEnabled', false),
     ip: SERVER_IP,
   };
 });
 ipcMain.handle('setShader', (_e, v) => store.set('shaderEnabled', !!v));
+ipcMain.handle('setAxiom', (_e, v) => store.set('axiomEnabled', !!v));
+// Bouton "Mettre à jour" (Mac non signé) : télécharge le bon installeur
+ipcMain.handle('downloadUpdate', () => {
+  const asset = process.platform === 'darwin' ? 'EmeriaMC-mac.dmg' : 'EmeriaMC-windows.exe';
+  shell.openExternal(`https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest/download/${asset}`);
+});
 ipcMain.handle('setRam', (_e, v) => {
   const n = Math.max(2, Math.min(maxRamGB(), Number(v) || 4));
   store.set('ram', n);
@@ -195,7 +210,8 @@ ipcMain.handle('launch', async () => {
   const bundled = path.join(__dirname, 'content');
   syncMods(bundled, MC_ROOT);
   installConfigs(bundled, MC_ROOT);
-  patchShaderForMac(MC_ROOT); // désactive colored lighting sur Mac
+  // Axiom : installé seulement si compte autorisé ET activé dans les réglages
+  setAxiomInstalled(bundled, MC_ROOT, canUseAxiom() && store.get('axiomEnabled', false));
   setShaderEnabled(MC_ROOT, store.get('shaderEnabled', true)); // toggle shaders
   logger.log('mods synced');
 

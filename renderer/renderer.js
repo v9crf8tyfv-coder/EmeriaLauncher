@@ -15,6 +15,9 @@ const sendLogsBtn = document.getElementById('send-logs');
 const shaderToggle = document.getElementById('shader-toggle');
 const accountMenu = document.getElementById('account-menu');
 const logoutBtn = document.getElementById('logout-btn');
+const updateBtn = document.getElementById('update-btn');
+const catAxiom = document.getElementById('cat-axiom');
+const axiomToggle = document.getElementById('axiom-toggle');
 
 let connected = false;
 
@@ -104,6 +107,16 @@ window.api.onStatus((s) => (statusEl.textContent = s));
 window.api.onUpdateInfo((msg) => {
   statusEl.textContent = msg;
 });
+// Bouton "Mettre à jour" (Mac) : télécharge le bon launcher
+window.api.onUpdateButton(() => {
+  if (updateBtn) updateBtn.hidden = false;
+});
+if (updateBtn) {
+  updateBtn.addEventListener('click', () => {
+    window.api.downloadUpdate();
+    updateBtn.textContent = '⬇ Téléchargement lancé…';
+  });
+}
 // Vraie maj en cours (Windows/Linux qui se télécharge) : on bloque le lancement
 window.api.onUpdate((msg) => {
   statusEl.textContent = msg;
@@ -126,10 +139,14 @@ async function loadSettings() {
   const hint = document.getElementById('ram-max-hint');
   if (hint) hint.textContent = `Max détecté sur ton PC : ${s.maxRam} Go`;
   shaderToggle.checked = s.shaderEnabled;
+  // Axiom : onglet visible seulement pour le staff build autorisé
+  if (catAxiom) catAxiom.hidden = !s.canUseAxiom;
+  if (axiomToggle) axiomToggle.checked = !!s.axiomEnabled;
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
 }
 shaderToggle.addEventListener('change', () => window.api.setShader(shaderToggle.checked));
+if (axiomToggle) axiomToggle.addEventListener('change', () => window.api.setAxiom(axiomToggle.checked));
 function renderList(el, items, emptyMsg) {
   el.innerHTML = '';
   if (!items || items.length === 0) {

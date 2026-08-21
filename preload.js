@@ -8,10 +8,13 @@ contextBridge.exposeInMainWorld('api', {
   getSettings: () => ipcRenderer.invoke('getSettings'),
   setRam: (v) => ipcRenderer.invoke('setRam', v),
   setShader: (v) => ipcRenderer.invoke('setShader', v),
+  setAxiom: (v) => ipcRenderer.invoke('setAxiom', v),
+  downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),
   copyIp: () => ipcRenderer.invoke('copyIp'),
   sendLogs: () => ipcRenderer.invoke('sendLogs'),
   // événements
   onSession: (cb) => ipcRenderer.on('session', (_e, d) => cb(d)),
+  onUpdateButton: (cb) => ipcRenderer.on('updateButton', (_e, d) => cb(d)),
   onStatus: (cb) => ipcRenderer.on('status', (_e, d) => cb(d)),
   onProgress: (cb) => ipcRenderer.on('progress', (_e, d) => cb(d)),
   onClosed: (cb) => ipcRenderer.on('closed', (_e, d) => cb(d)),
