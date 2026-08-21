@@ -8,6 +8,12 @@ function maxRamGB() {
   const totalGB = Math.round(os.totalmem() / 1024 ** 3);
   return Math.max(2, Math.min(16, totalGB - 2));
 }
+// RAM conseillée automatiquement selon le PC : ~la moitié de la RAM, borné [4, 8], jamais > max.
+function recommendedRamGB() {
+  const totalGB = Math.round(os.totalmem() / 1024 ** 3);
+  const ideal = Math.max(4, Math.min(8, Math.floor(totalGB / 2)));
+  return Math.min(maxRamGB(), ideal);
+}
 const { Client } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
@@ -145,9 +151,12 @@ ipcMain.handle('logout', () => {
 // ---- Réglages ----
 ipcMain.handle('getSettings', () => {
   const max = maxRamGB();
+  const auto = store.get('ramAuto', true);
   return {
-    ram: Math.min(store.get('ram', 4), max),
+    ram: auto ? recommendedRamGB() : Math.min(store.get('ram', 4), max),
     maxRam: max,
+    ramAuto: auto,
+    autoRam: recommendedRamGB(),
     mods: content.mods,
     shaders: content.shaders,
     shaderEnabled: store.get('shaderEnabled', true),
@@ -166,7 +175,12 @@ ipcMain.handle('downloadUpdate', () => {
 ipcMain.handle('setRam', (_e, v) => {
   const n = Math.max(2, Math.min(maxRamGB(), Number(v) || 4));
   store.set('ram', n);
+  store.set('ramAuto', false); // régler manuellement -> on quitte le mode auto
   return n;
+});
+ipcMain.handle('setRamAuto', (_e, v) => {
+  store.set('ramAuto', !!v);
+  return recommendedRamGB();
 });
 ipcMain.handle('copyIp', () => clipboard.writeText(SERVER_IP));
 
@@ -193,8 +207,10 @@ ipcMain.handle('sendLogs', async () => {
 // ---- Lancer le jeu (connexion directe au serveur) ----
 ipcMain.handle('launch', async () => {
   if (!mcToken) throw new Error('Non connecté');
-  const ram = Math.min(store.get('ram', 4), maxRamGB());
-  logger.log('launch start ram=' + ram);
+  const ram = store.get('ramAuto', true)
+    ? recommendedRamGB()
+    : Math.min(store.get('ram', 4), maxRamGB());
+  logger.log('launch start ram=' + ram + (store.get('ramAuto', true) ? ' (auto)' : ''));
 
   send('status', 'Vérification de Java…');
   const javaPath = await ensureJava((m) => {

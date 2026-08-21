@@ -13,6 +13,8 @@ function pretty(file) {
   n = n.replace(/[-_](fabric|forge|mc|v)?\d.*$/i, ''); // coupe la version
   n = n.replace(/[-_](fabric|forge)$/i, ''); // enlève un "-fabric" en trop
   n = n.replace(/[-_]+/g, ' ').trim();
+  // Jolie casse : première lettre de chaque mot en majuscule (garde le camelCase existant)
+  n = n.replace(/\b[a-z]/g, (c) => c.toUpperCase());
   return n || file;
 }
 

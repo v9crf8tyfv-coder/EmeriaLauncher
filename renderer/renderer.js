@@ -9,6 +9,7 @@ const settingsOverlay = document.getElementById('settings');
 const settingsClose = document.getElementById('settings-close');
 const ramInput = document.getElementById('ram');
 const ramVal = document.getElementById('ram-val');
+const ramAuto = document.getElementById('ram-auto');
 const modsList = document.getElementById('mods-list');
 const shadersList = document.getElementById('shaders-list');
 const sendLogsBtn = document.getElementById('send-logs');
@@ -136,8 +137,16 @@ async function loadSettings() {
   ramInput.max = s.maxRam; // max = RAM du PC détectée
   ramInput.value = s.ram;
   ramVal.textContent = s.ram;
+  if (ramAuto) {
+    ramAuto.checked = !!s.ramAuto;
+    ramInput.disabled = !!s.ramAuto; // en mode auto, le curseur est grisé
+  }
   const hint = document.getElementById('ram-max-hint');
-  if (hint) hint.textContent = `Max détecté sur ton PC : ${s.maxRam} Go`;
+  if (hint) {
+    hint.textContent = s.ramAuto
+      ? `Auto : ${s.autoRam} Go alloués (max ${s.maxRam} Go sur ton PC)`
+      : `Max détecté sur ton PC : ${s.maxRam} Go`;
+  }
   shaderToggle.checked = s.shaderEnabled;
   // Axiom : onglet visible seulement pour le staff build autorisé
   if (catAxiom) catAxiom.hidden = !s.canUseAxiom;
@@ -182,7 +191,22 @@ document.querySelectorAll('.cat').forEach((cat) => {
 });
 
 ramInput.addEventListener('input', () => (ramVal.textContent = ramInput.value));
-ramInput.addEventListener('change', () => window.api.setRam(Number(ramInput.value)));
+ramInput.addEventListener('change', () => {
+  window.api.setRam(Number(ramInput.value)); // régler à la main -> quitte le mode auto
+  if (ramAuto) ramAuto.checked = false;
+});
+if (ramAuto) {
+  ramAuto.addEventListener('change', async () => {
+    const v = await window.api.setRamAuto(ramAuto.checked);
+    ramInput.disabled = ramAuto.checked;
+    if (ramAuto.checked) {
+      ramInput.value = v;
+      ramVal.textContent = v;
+      const hint = document.getElementById('ram-max-hint');
+      if (hint) hint.textContent = `Auto : ${v} Go alloués`;
+    }
+  });
+}
 sendLogsBtn.addEventListener('click', async () => {
   sendLogsBtn.textContent = 'Envoi…';
   const r = await window.api.sendLogs();
