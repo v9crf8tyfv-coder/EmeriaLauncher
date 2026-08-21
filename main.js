@@ -161,7 +161,7 @@ ipcMain.handle('getSettings', () => {
     shaders: content.shaders,
     shaderEnabled: store.get('shaderEnabled', true),
     canUseAxiom: canUseAxiom(),               // toggle Axiom visible seulement pour le staff build
-    axiomEnabled: store.get('axiomEnabled', false),
+    axiomEnabled: store.get('axiomEnabled', true),
     ip: SERVER_IP,
   };
 });
@@ -227,7 +227,7 @@ ipcMain.handle('launch', async () => {
   syncMods(bundled, MC_ROOT);
   installConfigs(bundled, MC_ROOT);
   // Axiom : installé seulement si compte autorisé ET activé dans les réglages
-  setAxiomInstalled(bundled, MC_ROOT, canUseAxiom() && store.get('axiomEnabled', false));
+  setAxiomInstalled(bundled, MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true));
   setShaderEnabled(MC_ROOT, store.get('shaderEnabled', true)); // toggle shaders
   logger.log('mods synced');
 
