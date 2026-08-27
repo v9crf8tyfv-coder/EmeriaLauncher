@@ -1,9 +1,76 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// Manifeste des mods hébergé à part (GitHub Release) : liste + empreinte de chaque mod.
+// Permet de télécharger UNIQUEMENT les mods modifiés au lancement (au lieu de tout embarquer
+// dans le launcher). Mettre à jour un mod = mettre à jour ce manifeste, sans rebuild du launcher.
+const MANIFEST_URL =
+  'https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/manifest.json';
+
+function sha256File(file) {
+  try {
+    return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  } catch {
+    return null;
+  }
+}
+
+async function fetchManifest() {
+  const res = await fetch(MANIFEST_URL + '?t=' + Date.now());
+  if (!res.ok) throw new Error('manifest HTTP ' + res.status);
+  return res.json();
+}
+
+async function downloadTo(url, dest) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('download HTTP ' + res.status + ' ' + url);
+  fs.writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
+}
+
+/**
+ * Synchronise les mods depuis le manifeste : télécharge SEULEMENT les nouveaux/modifiés,
+ * retire ceux qui ont été supprimés du manifeste. Ne touche pas à Axiom (géré à part).
+ * Si le réseau/manifeste est indispo → garde les mods déjà présents (jeu jouable hors-ligne).
+ * onProgress(nomDuMod, index, total) — appelé pour chaque mod téléchargé.
+ */
+async function syncModsFromManifest(root, onProgress) {
+  const to = path.join(root, 'mods');
+  fs.mkdirSync(to, { recursive: true });
+
+  let manifest;
+  try {
+    manifest = await fetchManifest();
+  } catch {
+    return; // pas de réseau -> on garde l'existant
+  }
+  const wanted = Array.isArray(manifest.mods) ? manifest.mods : [];
+  const wantedNames = new Set(wanted.map((m) => m.name));
+
+  // Retire les mods qui ne sont plus dans le manifeste (sauf Axiom, géré séparément)
+  for (const f of fs.readdirSync(to)) {
+    if (!f.endsWith('.jar') || /axiom/i.test(f)) continue;
+    if (!wantedNames.has(f)) {
+      try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
+    }
+  }
+
+  // Télécharge uniquement ce qui a changé
+  let i = 0;
+  for (const m of wanted) {
+    const dest = path.join(to, m.name);
+    if (sha256File(dest) !== m.sha256) {
+      if (onProgress) onProgress(m.name, i, wanted.length);
+      await downloadTo(m.url, dest);
+    }
+    i++;
+  }
+}
 
 /**
  * Synchronise le dossier mods du jeu avec les mods fournis par le launcher.
  * Retire les anciens .jar et copie ceux du launcher → ajout/retrait reflété chez tous.
+ * (Ancienne méthode "mods embarqués" — conservée en secours.)
  */
 function syncMods(bundledDir, root) {
   const from = path.join(bundledDir, 'mods');
@@ -96,25 +163,36 @@ function setShaderEnabled(root, enabled) {
  * Axiom (mod optionnel du staff build) : présent dans content/optional/axiom mais PAS
  * synchronisé automatiquement. Installé dans mods/ seulement si `enabled`, sinon retiré.
  */
-function setAxiomInstalled(bundledDir, root, enabled) {
+async function setAxiomInstalled(root, enabled, onProgress) {
   const to = path.join(root, 'mods');
   fs.mkdirSync(to, { recursive: true });
   // Retire toute version d'Axiom déjà présente
   for (const f of fs.readdirSync(to)) {
     if (/axiom/i.test(f) && f.endsWith('.jar')) {
-      try {
-        fs.unlinkSync(path.join(to, f));
-      } catch {
-        /* ignore */
-      }
+      try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
     }
   }
   if (!enabled) return;
-  const from = path.join(bundledDir, 'optional', 'axiom');
-  if (!fs.existsSync(from)) return;
-  for (const f of fs.readdirSync(from)) {
-    if (f.endsWith('.jar')) fs.copyFileSync(path.join(from, f), path.join(to, f));
+  // Télécharge Axiom depuis le manifeste (entrée optionnelle "axiom")
+  try {
+    const manifest = await fetchManifest();
+    const ax = (manifest.optional || []).find((o) => o.id === 'axiom');
+    if (!ax) return;
+    const dest = path.join(to, ax.name);
+    if (sha256File(dest) !== ax.sha256) {
+      if (onProgress) onProgress('Axiom');
+      await downloadTo(ax.url, dest);
+    }
+  } catch {
+    /* réseau indispo -> Axiom non installé cette fois */
   }
 }
 
-module.exports = { syncMods, installConfigs, patchShaderForMac, setShaderEnabled, setAxiomInstalled };
+module.exports = {
+  syncMods,
+  syncModsFromManifest,
+  installConfigs,
+  patchShaderForMac,
+  setShaderEnabled,
+  setAxiomInstalled,
+};

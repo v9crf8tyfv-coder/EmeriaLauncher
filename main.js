@@ -19,7 +19,7 @@ const { Auth } = require('msmc');
 const { autoUpdater } = require('electron-updater');
 const { installFabric } = require('./src/fabric');
 const {
-  syncMods,
+  syncModsFromManifest,
   installConfigs,
   setShaderEnabled,
   setAxiomInstalled,
@@ -222,12 +222,15 @@ ipcMain.handle('launch', async () => {
   send('status', 'Installation de Fabric…');
   const versionId = await installFabric(MC_ROOT, MC_VERSION);
 
-  send('status', 'Installation des mods & shaders…');
+  send('status', 'Vérification des mods…');
   const bundled = path.join(__dirname, 'content');
-  syncMods(bundled, MC_ROOT);
+  // Mods téléchargés depuis le manifeste : seuls les mods modifiés sont récupérés.
+  await syncModsFromManifest(MC_ROOT, (name) => send('status', 'Téléchargement du mod : ' + name));
   installConfigs(bundled, MC_ROOT);
   // Axiom : installé seulement si compte autorisé ET activé dans les réglages
-  setAxiomInstalled(bundled, MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true));
+  await setAxiomInstalled(MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true), () =>
+    send('status', 'Téléchargement d\'Axiom…'),
+  );
   setShaderEnabled(MC_ROOT, store.get('shaderEnabled', true)); // toggle shaders
   logger.log('mods synced');
 
