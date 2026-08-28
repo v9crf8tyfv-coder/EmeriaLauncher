@@ -6,6 +6,8 @@ const fs = require('fs');
 const path = require('path');
 
 const MODS_DIR = path.join(__dirname, '..', 'content', 'mods');
+// Liste pré-générée au build (les .jar sont exclus de l'installeur pour l'alléger).
+const MODS_JSON = path.join(__dirname, '..', 'content', 'mods.json');
 
 /** Transforme "sodium-fabric-0.8.12+mc1.21.1.jar" -> "sodium" (nom propre) */
 function pretty(file) {
@@ -19,6 +21,16 @@ function pretty(file) {
 }
 
 function listMods() {
+  // 1) Liste pré-générée (installeur allégé, sans les .jar)
+  try {
+    if (fs.existsSync(MODS_JSON)) {
+      const arr = JSON.parse(fs.readFileSync(MODS_JSON, 'utf8'));
+      if (Array.isArray(arr)) return arr;
+    }
+  } catch {
+    /* json absent/invalide -> on scanne le dossier */
+  }
+  // 2) Repli : scan direct du dossier mods (dev, ou si les .jar sont présents)
   try {
     return fs
       .readdirSync(MODS_DIR)

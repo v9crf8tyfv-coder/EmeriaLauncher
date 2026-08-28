@@ -1,6 +1,6 @@
 {
   "name": "emeria-launcher",
-  "version": "0.2.42",
+  "version": "0.2.43",
   "description": "Launcher EmeriaMC — Fabric 1.21.1",
   "main": "main.js",
   "author": "EmeriaMC",
@@ -27,6 +27,7 @@
   "build": {
     "appId": "fr.emeria.launcher",
     "productName": "EmeriaMC",
+    "beforePack": "build/gen-mods-list.js",
     "afterPack": "build/afterPack.js",
     "compression": "maximum",
     "electronLanguages": [
@@ -39,7 +40,8 @@
       "preload.js",
       "src/**",
       "renderer/**",
-      "content/**"
+      "content/**",
+      "!content/mods/*.jar"
     ],
     "mac": {
       "target": [
