@@ -67,7 +67,7 @@
     "use_adaptive_sync": false,
     "cloud_height_override": false,
     "cloud_height": 192,
-    "cloud_distance": 100,
+    "cloud_distance": 150,
     "toasts": true,
     "advancement_toast": true,
     "recipe_toast": true,
