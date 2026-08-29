@@ -6,7 +6,16 @@
     "name": "Architectury"
   },
   {
+    "name": "Chunky"
+  },
+  {
+    "name": "ChunkyBorder"
+  },
+  {
     "name": "Citresewn"
+  },
+  {
+    "name": "CreativeCore"
   },
   {
     "name": "Easy Npc Config Ui"
@@ -31,12 +40,6 @@
   },
   {
     "name": "ForgeConfigAPIPort"
-  },
-  {
-    "name": "Ftb Library"
-  },
-  {
-    "name": "Inventory Weight"
   },
   {
     "name": "InventoryProfilesNext"

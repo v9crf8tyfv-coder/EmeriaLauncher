@@ -108,7 +108,7 @@ function copyRecursive(from, to, overwrite) {
 }
 
 function installConfigs(bundledDir, root) {
-  for (const sub of ['config', 'shaderpacks']) {
+  for (const sub of ['config', 'shaderpacks', 'resourcepacks']) {
     const from = path.join(bundledDir, sub);
     if (!fs.existsSync(from)) continue;
     copyRecursive(from, path.join(root, sub), false); // sous-dossiers gérés (ex: config/xaero/...)
