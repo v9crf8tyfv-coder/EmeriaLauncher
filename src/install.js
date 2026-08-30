@@ -68,6 +68,31 @@ async function syncModsFromManifest(root, onProgress) {
 }
 
 /**
+ * Synchronise les resourcepacks depuis le manifeste (ajout / mise à jour seulement).
+ * Ne supprime PAS les packs fournis avec le launcher (ex : Better Leaves).
+ */
+async function syncResourcepacksFromManifest(root, onProgress) {
+  const to = path.join(root, 'resourcepacks');
+  fs.mkdirSync(to, { recursive: true });
+  let manifest;
+  try {
+    manifest = await fetchManifest();
+  } catch {
+    return; // pas de réseau -> on garde l'existant
+  }
+  const wanted = Array.isArray(manifest.resourcepacks) ? manifest.resourcepacks : [];
+  let i = 0;
+  for (const m of wanted) {
+    const dest = path.join(to, m.name);
+    if (sha256File(dest) !== m.sha256) {
+      if (onProgress) onProgress(m.name, i, wanted.length);
+      await downloadTo(m.url, dest);
+    }
+    i++;
+  }
+}
+
+/**
  * Synchronise le dossier mods du jeu avec les mods fournis par le launcher.
  * Retire les anciens .jar et copie ceux du launcher → ajout/retrait reflété chez tous.
  * (Ancienne méthode "mods embarqués" — conservée en secours.)
@@ -166,23 +191,32 @@ function setShaderEnabled(root, enabled) {
 async function setAxiomInstalled(root, enabled, onProgress) {
   const to = path.join(root, 'mods');
   fs.mkdirSync(to, { recursive: true });
-  // Retire toute version d'Axiom déjà présente
-  for (const f of fs.readdirSync(to)) {
-    if (/axiom/i.test(f) && f.endsWith('.jar')) {
-      try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
+
+  const removeAxiom = () => {
+    for (const f of fs.readdirSync(to)) {
+      if (/axiom/i.test(f) && f.endsWith('.jar')) {
+        try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
+      }
     }
-  }
-  if (!enabled) return;
-  // Télécharge Axiom depuis le manifeste (entrée optionnelle "axiom")
+  };
+
+  // Désactivé : on retire toute version d'Axiom et on s'arrête.
+  if (!enabled) { removeAxiom(); return; }
+
+  // Activé : on ne re-télécharge QUE si Axiom manque ou n'est pas à jour (bon hash).
   try {
     const manifest = await fetchManifest();
     const ax = (manifest.optional || []).find((o) => o.id === 'axiom');
     if (!ax) return;
     const dest = path.join(to, ax.name);
-    if (sha256File(dest) !== ax.sha256) {
-      if (onProgress) onProgress('Axiom');
-      await downloadTo(ax.url, dest);
-    }
+
+    // Déjà présent avec le bon hash → rien à faire (lancement instantané).
+    if (fs.existsSync(dest) && sha256File(dest) === ax.sha256) return;
+
+    // Sinon : on nettoie les anciennes versions puis on télécharge la bonne.
+    removeAxiom();
+    if (onProgress) onProgress('Axiom');
+    await downloadTo(ax.url, dest);
   } catch {
     /* réseau indispo -> Axiom non installé cette fois */
   }
@@ -191,6 +225,7 @@ async function setAxiomInstalled(root, enabled, onProgress) {
 module.exports = {
   syncMods,
   syncModsFromManifest,
+  syncResourcepacksFromManifest,
   installConfigs,
   patchShaderForMac,
   setShaderEnabled,
