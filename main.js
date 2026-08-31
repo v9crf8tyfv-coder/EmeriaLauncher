@@ -21,6 +21,7 @@ const { installFabric } = require('./src/fabric');
 const {
   syncModsFromManifest,
   syncResourcepacksFromManifest,
+  getAxiomAllowed,
   installConfigs,
   setShaderEnabled,
   setAxiomInstalled,
@@ -43,7 +44,14 @@ let mcToken = null; // token pour minecraft-launcher-core
 const authManager = new Auth('select_account');
 
 // Comptes autorisés à voir/activer Axiom (staff build). Insensible à la casse.
-const AXIOM_ALLOWED = ['ixtazzking', 'xtazzking', 'orionyx84'];
+// Liste par défaut (repli). Mise à jour depuis le manifeste (éditable via le panel).
+let AXIOM_ALLOWED = ['ixtazzking', 'xtazzking', 'orionyx84'];
+async function refreshAxiomAllowed() {
+  try {
+    const list = await getAxiomAllowed();
+    if (list && list.length) AXIOM_ALLOWED = list;
+  } catch { /* garde la liste par défaut */ }
+}
 function canUseAxiom() {
   return !!(mcToken && AXIOM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
 }
@@ -66,6 +74,7 @@ app.whenReady().then(() => {
   logger.log('launcher start', app.getVersion());
   createWindow();
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
+  void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
   mainWindow.webContents.once('did-finish-load', trySilentLogin);
 });
 app.on('window-all-closed', () => app.quit());

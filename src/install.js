@@ -67,6 +67,17 @@ async function syncModsFromManifest(root, onProgress) {
   }
 }
 
+/** Liste des pseudos autorisés à Axiom (staff build), depuis le manifeste. null si indispo. */
+async function getAxiomAllowed() {
+  try {
+    const manifest = await fetchManifest();
+    const list = Array.isArray(manifest.axiomAllowed) ? manifest.axiomAllowed : null;
+    return list && list.length ? list.map((s) => String(s).toLowerCase()) : null;
+  } catch {
+    return null; // repli sur la liste par défaut du launcher
+  }
+}
+
 /**
  * Synchronise les resourcepacks depuis le manifeste (ajout / mise à jour seulement).
  * Ne supprime PAS les packs fournis avec le launcher (ex : Better Leaves).
@@ -226,6 +237,7 @@ module.exports = {
   syncMods,
   syncModsFromManifest,
   syncResourcepacksFromManifest,
+  getAxiomAllowed,
   installConfigs,
   patchShaderForMac,
   setShaderEnabled,
