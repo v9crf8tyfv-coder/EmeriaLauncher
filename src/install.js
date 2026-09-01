@@ -233,11 +233,58 @@ async function setAxiomInstalled(root, enabled, onProgress) {
   }
 }
 
+/**
+ * Transforme un nom de fichier de mod en nom propre pour l'affichage.
+ * Ex : "votelistener-1.1.0+1.21.jar" -> "Votelistener"
+ *      "xaerominimap-fabric-1.21.1-26.4.2.jar" -> "Xaerominimap"
+ *      "yet_another_config_lib_v3-3.8.2+1.21.1.jar" -> "Yet Another Config Lib"
+ */
+function prettyModName(file) {
+  let s = String(file || '').replace(/\.(jar|zip)$/i, '');
+  const parts = s.split(/[-_+ ]+/).filter(Boolean);
+  // On coupe sur une version (toujours) ou sur un tag de loader (sauf s'il est le 1er mot,
+  // pour garder les mods réellement nommés "fabric-api", "fabric-language-kotlin"…).
+  const versionTok = /^(v?\d|mc\d|mc$|beta|alpha|snapshot|build)/i;
+  const loaderTok = /^(fabric|forge|quilt|neoforge)$/i;
+  const kept = [];
+  for (const p of parts) {
+    if (versionTok.test(p)) break;
+    if (loaderTok.test(p) && kept.length) break;
+    kept.push(p);
+  }
+  const words = (kept.length ? kept : parts.slice(0, 1));
+  const name = words.join(' ').replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+  return name || file;
+}
+
+/**
+ * Listes à afficher dans le launcher (mods + resourcepacks), depuis le manifeste,
+ * avec des noms propres et triées. Renvoie null si le manifeste est indisponible
+ * (le launcher retombe alors sur sa liste par défaut embarquée).
+ */
+async function getManifestDisplayLists() {
+  try {
+    const manifest = await fetchManifest();
+    const toList = (arr) => {
+      const seen = new Set();
+      return (Array.isArray(arr) ? arr : [])
+        .map((e) => ({ name: prettyModName(e.name) }))
+        .filter((e) => { const k = e.name.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; })
+        .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+    };
+    return { mods: toList(manifest.mods), resourcepacks: toList(manifest.resourcepacks) };
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
   syncMods,
   syncModsFromManifest,
   syncResourcepacksFromManifest,
   getAxiomAllowed,
+  getManifestDisplayLists,
+  prettyModName,
   installConfigs,
   patchShaderForMac,
   setShaderEnabled,

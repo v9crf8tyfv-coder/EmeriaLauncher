@@ -22,6 +22,7 @@ const {
   syncModsFromManifest,
   syncResourcepacksFromManifest,
   getAxiomAllowed,
+  getManifestDisplayLists,
   installConfigs,
   setShaderEnabled,
   setAxiomInstalled,
@@ -56,6 +57,16 @@ function canUseAxiom() {
   return !!(mcToken && AXIOM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
 }
 
+// Liste des mods affichée dans le launcher. Par défaut = liste embarquée (content.js),
+// remplacée au démarrage par le manifeste en ligne (noms propres) -> reflète le panel.
+let displayMods = content.mods;
+async function refreshDisplayMods() {
+  try {
+    const lists = await getManifestDisplayLists();
+    if (lists && lists.mods && lists.mods.length) displayMods = lists.mods;
+  } catch { /* garde la liste embarquée */ }
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
@@ -75,6 +86,7 @@ app.whenReady().then(() => {
   createWindow();
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
+  void refreshDisplayMods();  // met à jour la liste des mods affichée depuis le manifeste (panel)
   mainWindow.webContents.once('did-finish-load', trySilentLogin);
 });
 app.on('window-all-closed', () => app.quit());
@@ -167,7 +179,7 @@ ipcMain.handle('getSettings', () => {
     maxRam: max,
     ramAuto: auto,
     autoRam: recommendedRamGB(),
-    mods: content.mods,
+    mods: displayMods,
     shaders: content.shaders,
     shaderEnabled: store.get('shaderEnabled', true),
     canUseAxiom: canUseAxiom(),               // toggle Axiom visible seulement pour le staff build
