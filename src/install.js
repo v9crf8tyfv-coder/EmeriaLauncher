@@ -149,11 +149,51 @@ function installConfigs(bundledDir, root) {
     if (!fs.existsSync(from)) continue;
     copyRecursive(from, path.join(root, sub), false); // sous-dossiers gérés (ex: config/xaero/...)
   }
+  // Le pack de badges est TOUJOURS rafraîchi (écrase l'ancien) pour propager
+  // les mises à jour de badges à chaque mise à jour du launcher.
+  const badgeSrc = path.join(bundledDir, 'resourcepacks', 'EmeriaBadges.zip');
+  const badgeDst = path.join(root, 'resourcepacks', 'EmeriaBadges.zip');
+  if (fs.existsSync(badgeSrc)) {
+    fs.mkdirSync(path.dirname(badgeDst), { recursive: true });
+    try {
+      fs.copyFileSync(badgeSrc, badgeDst);
+    } catch {
+      /* ignore */
+    }
+  }
   // options.txt (touches + réglages par défaut) — copié au 1er lancement seulement.
   const optSrc = path.join(bundledDir, 'options.txt');
   const optDst = path.join(root, 'options.txt');
   if (fs.existsSync(optSrc) && !fs.existsSync(optDst)) {
     fs.copyFileSync(optSrc, optDst);
+  }
+}
+
+/**
+ * Force un resourcepack à être ACTIF dans options.txt (le rajoute s'il manque).
+ * Appelé à CHAQUE lancement → si le joueur l'a désactivé, il est réactivé au prochain lancement.
+ * Ne throw jamais (options.txt peut être absent au tout premier lancement).
+ */
+function ensureResourcePackEnabled(root, packFile) {
+  const file = path.join(root, 'options.txt');
+  const entry = 'file/' + packFile;
+  try {
+    if (!fs.existsSync(file)) return;
+    const txt = fs.readFileSync(file, 'utf8');
+    const m = txt.match(/^resourcePacks:(.*)$/m);
+    if (!m) return;
+    let list;
+    try {
+      list = JSON.parse(m[1]);
+    } catch {
+      return;
+    }
+    if (!Array.isArray(list) || list.includes(entry)) return;
+    list.push(entry); // ajouté en fin = priorité haute
+    const out = txt.replace(/^resourcePacks:.*$/m, 'resourcePacks:' + JSON.stringify(list));
+    fs.writeFileSync(file, out);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -286,6 +326,7 @@ module.exports = {
   getManifestDisplayLists,
   prettyModName,
   installConfigs,
+  ensureResourcePackEnabled,
   patchShaderForMac,
   setShaderEnabled,
   setAxiomInstalled,

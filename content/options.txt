@@ -48,7 +48,7 @@ mouseSensitivity:0.4507042253521127
 damageTiltStrength:1.0
 highContrast:false
 narratorHotkey:true
-resourcePacks:["vanilla","fabric","vanillabackport:freshly_animated","vanillabackport:freshly_animated_legacy","file/EvenBetterEnchants_v2_r1.zip"]
+resourcePacks:["vanilla","fabric","vanillabackport:freshly_animated","vanillabackport:freshly_animated_legacy","file/EvenBetterEnchants_v2_r1.zip","file/EmeriaBadges.zip"]
 incompatibleResourcePacks:["ambientenvironment","easy_npc","easy_npc_config_ui","jade","xaerolib","xaerominimap","xaeroworldmap","yet_another_config_lib_v3"]
 lastServer:
 lang:en_us

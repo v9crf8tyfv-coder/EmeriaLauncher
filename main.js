@@ -24,6 +24,7 @@ const {
   getAxiomAllowed,
   getManifestDisplayLists,
   installConfigs,
+  ensureResourcePackEnabled,
   setShaderEnabled,
   setAxiomInstalled,
 } = require('./src/install');
@@ -250,6 +251,8 @@ ipcMain.handle('launch', async () => {
   await syncModsFromManifest(MC_ROOT, (name) => send('status', 'Téléchargement du mod : ' + name));
   installConfigs(bundled, MC_ROOT);
   await syncResourcepacksFromManifest(MC_ROOT, (name) => send('status', 'Téléchargement du pack : ' + name));
+  // Badges de grade : forcé actif à chaque lancement (réactivé si le joueur l'a retiré).
+  ensureResourcePackEnabled(MC_ROOT, 'EmeriaBadges.zip');
   // Axiom : installé seulement si compte autorisé ET activé dans les réglages
   await setAxiomInstalled(MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true), () =>
     send('status', 'Téléchargement d\'Axiom…'),
