@@ -32,6 +32,8 @@ const { ensureJava } = require('./src/java');
 const store = require('./src/store');
 const logger = require('./src/logger');
 const content = require('./src/content');
+const discordRpc = require('./src/discordRpc');
+const DISCORD_APP_ID = '1547631011469463603';
 
 // ---- Config EmeriaMC ----
 const MC_VERSION = '1.21.1';
@@ -85,6 +87,7 @@ app.whenReady().then(() => {
   logger.init();
   logger.log('launcher start', app.getVersion());
   createWindow();
+  discordRpc.start(DISCORD_APP_ID); // « Joue à EmeriaMC » sur Discord (Rich Presence)
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
   void refreshDisplayMods();  // met à jour la liste des mods affichée depuis le manifeste (panel)
@@ -268,6 +271,7 @@ ipcMain.handle('launch', async () => {
   launcher.on('close', (code) => {
     logger.log('game closed code=' + code);
     send('closed', code);
+    discordRpc.onLauncher(); // retour « sur le launcher »
   });
 
   await launcher.launch({
@@ -279,6 +283,7 @@ ipcMain.handle('launch', async () => {
     quickPlay: { type: 'multiplayer', identifier: SERVER_IP }, // connexion directe
   });
   logger.log('launch spawned');
+  discordRpc.onInGame(); // « En jeu » sur Discord
   send('status', 'Jeu en cours 🎮');
   return true;
 });
