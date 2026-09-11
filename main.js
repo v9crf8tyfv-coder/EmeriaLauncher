@@ -256,6 +256,8 @@ ipcMain.handle('launch', async () => {
   await syncResourcepacksFromManifest(MC_ROOT, (name) => send('status', 'Téléchargement du pack : ' + name));
   // Badges de grade : forcé actif à chaque lancement (réactivé si le joueur l'a retiré).
   ensureResourcePackEnabled(MC_ROOT, 'EmeriaBadges.zip');
+  // Pancarte Emeria : modèle 3D de l'item (custom_model_data) — forcé actif à chaque lancement.
+  ensureResourcePackEnabled(MC_ROOT, 'EmeriaPancarte.zip');
   // Axiom : installé seulement si compte autorisé ET activé dans les réglages
   await setAxiomInstalled(MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true), () =>
     send('status', 'Téléchargement d\'Axiom…'),
