@@ -86,7 +86,7 @@
     "commandNameSetblock": "setblock",
     "commandNameSummon": "summon",
     "commandTaskInterval": 1,
-    "customSchematicBaseDirectory": "/Users/ilianc19/Library/Application Support/.emeria/schematics",
+    "customSchematicBaseDirectory": "C:\\Users\\thiba\\AppData\\Roaming\\.emeria\\schematics",
     "easyPlaceSwapInterval": 0,
     "pickBlockableSlots": "1,2,3,4,5",
     "toolItem": "minecraft:stick",

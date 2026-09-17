@@ -16,7 +16,7 @@
     "enableTextToSpeech": false,
     "ttsMode": "PRESS",
     "previewOverlay": true,
-    "displayTooltip": true,
+    "displayTooltip": false,
     "displayBlocks": true,
     "displayEntities": true
   },
@@ -42,6 +42,7 @@
     }
   },
   "history": {
+    "hintOverlayToggle": false,
     "themesHash": -328442023
   }
 }
