@@ -143,30 +143,79 @@ function copyRecursive(from, to, overwrite) {
   }
 }
 
+/** Empreinte d'un dossier (chemins + contenus triés) pour détecter un changement de config. */
+function hashDir(dir) {
+  const h = crypto.createHash('sha1');
+  const walk = (d, rel) => {
+    for (const name of fs.readdirSync(d).sort()) {
+      const p = path.join(d, name);
+      const r = rel ? rel + '/' + name : name;
+      if (fs.statSync(p).isDirectory()) walk(p, r);
+      else { h.update(r); h.update(fs.readFileSync(p)); }
+    }
+  };
+  if (fs.existsSync(dir)) walk(dir, '');
+  return h.digest('hex');
+}
+
+/** Standardise UNIQUEMENT les touches (lignes key_*) sans toucher aux réglages perso (son, fov, sensi…). */
+function mergeKeybinds(optSrc, optDst) {
+  try {
+    if (!fs.existsSync(optSrc) || !fs.existsSync(optDst)) return;
+    const keys = {};
+    for (const l of fs.readFileSync(optSrc, 'utf8').split('\n')) {
+      const m = l.match(/^(key_[^:]+):/);
+      if (m) keys[m[1]] = l;
+    }
+    let out = fs.readFileSync(optDst, 'utf8').split('\n');
+    const seen = new Set();
+    out = out.map((l) => {
+      const m = l.match(/^(key_[^:]+):/);
+      if (m && keys[m[1]] !== undefined) { seen.add(m[1]); return keys[m[1]]; }
+      return l;
+    });
+    for (const k in keys) if (!seen.has(k)) out.push(keys[k]);
+    fs.writeFileSync(optDst, out.join('\n'));
+  } catch {
+    /* ignore */
+  }
+}
+
 function installConfigs(bundledDir, root) {
+  const optSrc = path.join(bundledDir, 'options.txt');
+  const optDst = path.join(root, 'options.txt');
+
+  // Empreinte des configs fournies. Si elle change (nouvelle config poussée) OU 1er lancement,
+  // on FORCE l'application des configs (minimap, shaders, mods…). Entre deux mises à jour, on
+  // ne touche à rien -> le joueur garde ses réglages perso.
+  const h = crypto.createHash('sha1');
+  const cfgFrom = path.join(bundledDir, 'config');
+  if (fs.existsSync(cfgFrom)) h.update(hashDir(cfgFrom));
+  if (fs.existsSync(optSrc)) h.update(fs.readFileSync(optSrc));
+  const version = h.digest('hex');
+  const marker = path.join(root, '.emeria-config-version');
+  const applied = fs.existsSync(marker) ? fs.readFileSync(marker, 'utf8').trim() : '';
+  const force = version !== applied;
+
   for (const sub of ['config', 'shaderpacks', 'resourcepacks']) {
     const from = path.join(bundledDir, sub);
     if (!fs.existsSync(from)) continue;
-    copyRecursive(from, path.join(root, sub), false); // sous-dossiers gérés (ex: config/xaero/...)
+    copyRecursive(from, path.join(root, sub), force); // force = applique la nouvelle config
   }
-  // Le pack de badges est TOUJOURS rafraîchi (écrase l'ancien) pour propager
-  // les mises à jour de badges à chaque mise à jour du launcher.
+  // Le pack de badges est TOUJOURS rafraîchi (écrase l'ancien).
   const badgeSrc = path.join(bundledDir, 'resourcepacks', 'EmeriaBadges.zip');
   const badgeDst = path.join(root, 'resourcepacks', 'EmeriaBadges.zip');
   if (fs.existsSync(badgeSrc)) {
     fs.mkdirSync(path.dirname(badgeDst), { recursive: true });
-    try {
-      fs.copyFileSync(badgeSrc, badgeDst);
-    } catch {
-      /* ignore */
-    }
+    try { fs.copyFileSync(badgeSrc, badgeDst); } catch { /* ignore */ }
   }
-  // options.txt (touches + réglages par défaut) — copié au 1er lancement seulement.
-  const optSrc = path.join(bundledDir, 'options.txt');
-  const optDst = path.join(root, 'options.txt');
-  if (fs.existsSync(optSrc) && !fs.existsSync(optDst)) {
-    fs.copyFileSync(optSrc, optDst);
+  // options.txt : 1er lancement -> tout ; nouvelle config -> seulement les TOUCHES (garde son/fov perso).
+  if (fs.existsSync(optSrc)) {
+    if (!fs.existsSync(optDst)) fs.copyFileSync(optSrc, optDst);
+    else if (force) mergeKeybinds(optSrc, optDst);
   }
+
+  try { fs.writeFileSync(marker, version); } catch { /* ignore */ }
 }
 
 /**
