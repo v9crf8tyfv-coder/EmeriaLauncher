@@ -1,0 +1,36 @@
+# Don't change this! Version used to track needed updates.
+version = 2
+# HUD display style. SPRITE uses the old bundle icon display. BAR uses a simple rectangular bar.
+hudStyle = "SPRITE"
+# HUD display position
+hudPosition = "BOTTOM_RIGHT"
+# X offset for CUSTOM HUD position, 0.0 to 1.0
+xOffset = 0.5
+# Y offset for CUSTOM HUD position, 0.0 to 1.0
+yOffset = 0.5
+# Sprite HUD size in pixels. The source textures are 16x16 and are scaled to this size.
+spriteSize = 16
+# Bar HUD width in pixels
+barWidth = 82
+# Bar HUD height in pixels
+barHeight = 10
+# HUD text display mode
+hudTextMode = "CURRENT_MAX"
+# Text position relative to the HUD element
+hudTextPosition = "BELOW"
+# Extra horizontal text offset in pixels. Also used as the CUSTOM text X offset relative to the HUD element.
+hudTextXOffset = 0
+# Extra vertical text offset in pixels. Also used as the CUSTOM text Y offset relative to the HUD element.
+hudTextYOffset = 0
+# Prevent HUD text from rendering outside the screen. If ABOVE/BELOW/LEFT/RIGHT would leave the screen, the text is flipped or clamped.
+keepHudTextOnScreen = true
+# HUD text color as RGB integer, for example 16777215 is white
+hudTextColor = 16777215
+# Draw a shadow behind HUD text
+hudTextShadow = true
+# Legacy option. If hudTextMode is unavailable during migration, this controls whether current/max text is shown.
+showNumbers = true
+# Legacy option. If hudTextMode is unavailable during migration and showNumbers is false, this controls whether percentage text is shown.
+showPercentage = true
+# Show item weight tooltips
+showTooltips = true

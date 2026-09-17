@@ -1,0 +1,16 @@
+{
+  "shotDurationSeconds": 10,
+  "afkThresholdSeconds": 30,
+  "maxCycles": 3,
+  "cameraSpeed": 0.5,
+  "damageAction": "CANCEL_CINEMATIC",
+  "extendedMusic": true,
+  "modEnabled": true,
+  "enableLetterbox": true,
+  "enableMusic": true,
+  "menuKey1": 296,
+  "menuKey2": 72,
+  "toggleKey1": 341,
+  "toggleKey2": 72,
+  "cinematicMusicVolume": 1.0
+}

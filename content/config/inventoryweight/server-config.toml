@@ -1,0 +1,24 @@
+# Don't change this! Version used to track needed updates.
+version = 1
+# Maximum inventory weight capacity in grams
+maxWeight = 1000000.0
+# Weight capacity added by one armor pocket
+pocketWeight = 9000.0
+# Enable gradual penalties before overload
+realisticMode = false
+# Strength multiplier for overload penalties. 0 disables attribute/jump penalties.
+overloadPenaltyStrength = 1.0
+# Base weight for bucket-like items
+bucketWeight = 120.0
+# Base weight for bottle/potion-like items
+bottleWeight = 60.0
+# Base weight for blocks
+blockWeight = 240.0
+# Base weight for ingots/gems/alloys/shards
+ingotWeight = 90.0
+# Base weight for nuggets
+nuggetWeight = 10.0
+# Base weight for generic items
+itemWeight = 50.0
+# Weight for creative/technical items
+creativeWeight = 300000.0
