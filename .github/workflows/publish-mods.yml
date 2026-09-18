@@ -1,0 +1,36 @@
+name: Publish mods manifest
+
+# Publie les fichiers de mods-manifest/ (manifest.json, et jars éventuels) comme
+# assets de la release "mods" — la source que tous les launchers téléchargent.
+# Utilise le GITHUB_TOKEN du repo (même repo), aucun secret manuel requis.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mods-manifest/**'
+      - '.github/workflows/publish-mods.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Uploader manifest (+ jars) vers la release "mods"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view mods --repo "${{ github.repository }}" \
+            || gh release create mods --repo "${{ github.repository }}" \
+                 --title "mods" --notes "Manifest + fichiers de mods distribués par le launcher."
+          shopt -s nullglob
+          files=(mods-manifest/*)
+          if [ ${#files[@]} -eq 0 ]; then echo "Rien a publier"; exit 0; fi
+          printf '%s\0' "${files[@]}" \
+            | xargs -0 gh release upload mods --repo "${{ github.repository }}" --clobber
+          echo "Publie : ${files[*]}"
