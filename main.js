@@ -3,15 +3,27 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+// RAM totale détectée, arrondie au Go supérieur (évite qu'un PC 16 Go lu 15.7 tombe à 15).
+function detectedRamGB() {
+  return Math.ceil(os.totalmem() / 1024 ** 3);
+}
 // RAM max qu'on autorise à allouer au jeu = RAM totale du PC - 2 Go (marge OS), borné [2, 16]
 function maxRamGB() {
-  const totalGB = Math.round(os.totalmem() / 1024 ** 3);
-  return Math.max(2, Math.min(16, totalGB - 2));
+  return Math.max(2, Math.min(16, detectedRamGB() - 2));
 }
-// RAM conseillée automatiquement selon le PC : ~la moitié de la RAM, borné [4, 8], jamais > max.
+// RAM conseillée automatiquement selon le PC (table EmeriaMC). Les seuils sont
+// LÉGÈREMENT sous les paliers nominaux car un PC sous-détecte souvent sa RAM
+// (un 16 Go peut être lu 15). Bornée par le max autorisé.
 function recommendedRamGB() {
-  const totalGB = Math.round(os.totalmem() / 1024 ** 3);
-  const ideal = Math.max(4, Math.min(8, Math.floor(totalGB / 2)));
+  const t = detectedRamGB();
+  let ideal;
+  if (t >= 60) ideal = 16;      // 64 Go -> 12+ (on donne 16)
+  else if (t >= 30) ideal = 12; // 32 Go -> 12
+  else if (t >= 22) ideal = 8;  // 24 Go -> 8
+  else if (t >= 15) ideal = 6;  // 16 Go -> 6
+  else if (t >= 11) ideal = 4;  // 12 Go -> 4
+  else if (t >= 7) ideal = 3;   // 8 Go  -> 3
+  else ideal = 2;               // < 8 Go
   return Math.min(maxRamGB(), ideal);
 }
 const { Client } = require('minecraft-launcher-core');
