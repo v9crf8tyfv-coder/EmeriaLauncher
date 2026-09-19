@@ -67,8 +67,25 @@ async function syncModsFromManifest(root, onProgress) {
   }
 }
 
-/** Liste des pseudos autorisés à Axiom (staff build), depuis le manifeste. null si indispo. */
+/** Endpoint panel : renvoie les pseudos Axiom = staff Responsable+ (auto) ∪ ajouts manuels. */
+const AXIOM_PANEL_URL = 'https://x-o-web.vercel.app/api/launcher/axiom';
+
+/**
+ * Liste des pseudos autorisés à Axiom (staff build), en minuscules. null si indispo.
+ *  1) panel (dynamique : staff resp+ auto + ajouts manuels via le xo-panel)
+ *  2) repli : axiomAllowed du manifeste
+ */
 async function getAxiomAllowed() {
+  // 1) Panel (source de vérité : resp+ automatiquement, + ajouts manuels).
+  try {
+    const r = await fetch(AXIOM_PANEL_URL + '?t=' + Date.now());
+    if (r.ok) {
+      const d = await r.json();
+      const list = Array.isArray(d.allowed) ? d.allowed : null;
+      if (list && list.length) return list.map((s) => String(s).toLowerCase());
+    }
+  } catch { /* panel indispo -> repli manifeste */ }
+  // 2) Repli : manifeste.
   try {
     const manifest = await fetchManifest();
     const list = Array.isArray(manifest.axiomAllowed) ? manifest.axiomAllowed : null;
@@ -129,19 +146,35 @@ function syncMods(bundledDir, root) {
 }
 
 /** Copie configs + shaderpacks fournis (sans écraser, pour garder les réglages joueur). */
-/** Copie récursive from -> to. overwrite=false : garde les réglages perso du joueur. */
-function copyRecursive(from, to, overwrite) {
+/**
+ * Copie récursive from -> to. overwrite=false : garde les réglages perso du joueur.
+ * `preserve` (Set de chemins relatifs, séparés par "/") = fichiers "possédés par le joueur"
+ * (réglages graphiques/shaders) : copiés au 1er install, mais JAMAIS réécrasés ensuite,
+ * même quand une nouvelle config est poussée -> le joueur garde ses réglages.
+ */
+function copyRecursive(from, to, overwrite, preserve = null, rel = '') {
   fs.mkdirSync(to, { recursive: true });
   for (const name of fs.readdirSync(from)) {
     const src = path.join(from, name);
     const dst = path.join(to, name);
+    const r = rel ? rel + '/' + name : name;
     if (fs.statSync(src).isDirectory()) {
-      copyRecursive(src, dst, overwrite);
-    } else if (overwrite || !fs.existsSync(dst)) {
-      fs.copyFileSync(src, dst);
+      copyRecursive(src, dst, overwrite, preserve, r);
+    } else {
+      const owned = preserve && preserve.has(r); // fichier graphique -> ne jamais écraser
+      if ((overwrite && !owned) || !fs.existsSync(dst)) {
+        fs.copyFileSync(src, dst);
+      }
     }
   }
 }
+
+/** Réglages graphiques/shaders possédés par le joueur (jamais écrasés après le 1er install). */
+const GRAPHICS_PRESERVE = new Set([
+  'iris.properties',            // shader activé + pack sélectionné + réglages
+  'sodium-options.json',        // qualité graphique / perf
+  'sodium-extra-options.json',
+]);
 
 /** Empreinte d'un dossier (chemins + contenus triés) pour détecter un changement de config. */
 function hashDir(dir) {
@@ -200,7 +233,9 @@ function installConfigs(bundledDir, root) {
   for (const sub of ['config', 'shaderpacks', 'resourcepacks']) {
     const from = path.join(bundledDir, sub);
     if (!fs.existsSync(from)) continue;
-    copyRecursive(from, path.join(root, sub), force); // force = applique la nouvelle config
+    // Sur config/, on protège les fichiers graphiques/shaders du joueur (jamais réécrasés).
+    const preserve = sub === 'config' ? GRAPHICS_PRESERVE : null;
+    copyRecursive(from, path.join(root, sub), force, preserve); // force = applique la nouvelle config
   }
   // Le pack de badges est TOUJOURS rafraîchi (écrase l'ancien).
   const badgeSrc = path.join(bundledDir, 'resourcepacks', 'EmeriaBadges.zip');
