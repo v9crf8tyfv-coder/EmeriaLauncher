@@ -199,8 +199,8 @@
     {
       "name": "emeriacore-1.0.0.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "90412207863e726a450873b9ee2bd78f1030528b07baa355a4cd9bb9a09164b4",
-      "size": 604814
+      "sha256": "b9cb8c0be65fd57ea895349f1566bd660a0679d08b53e03ad4684e6db92432eb",
+      "size": 604885
     }
   ],
   "resourcepacks": [
