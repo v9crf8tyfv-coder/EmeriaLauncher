@@ -158,14 +158,16 @@ main {
 .play-btn {
   width: 280px;
   height: 76px;
-  padding: 6px;
-  border: none;
-  background: transparent;
+  padding: 10px 16px;
+  /* cadre tout fin autour du bouton */
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.15s;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.15s, border-color 0.15s, background 0.15s;
 }
 .play-btn img {
   max-width: 100%;
@@ -177,6 +179,8 @@ main {
 }
 .play-btn:hover:not(:disabled) {
   filter: brightness(1.08);
+  border-color: rgba(124, 92, 255, 0.5);
+  background: rgba(124, 92, 255, 0.07);
 }
 .play-btn:active:not(:disabled) {
   transform: translateY(3px) scale(0.97);
@@ -409,9 +413,10 @@ input[type='range'] {
   margin-top: 12px;
   width: 260px;
   height: 58px;
-  padding: 4px;
-  border: none;
-  background: transparent;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
   display: flex;
   align-items: center;
