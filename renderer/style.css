@@ -265,23 +265,32 @@ main {
   opacity: 1;
   pointer-events: auto;
 }
+/* Masque la barre de défilement du tiroir — le scroll marche toujours */
+.drawer {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+}
+.drawer::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
 .drawer {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 300px;
-  /* verre dépoli TRANSLUCIDE : on voit le fond flouté à travers, AUCUNE ligne (bord dissous) */
-  background: rgba(18, 18, 26, 0.34);
-  backdrop-filter: blur(34px) saturate(1.6);
-  -webkit-backdrop-filter: blur(34px) saturate(1.6);
+  /* verre dépoli plus opaque (foncé) : le fondu du bord ne vire plus au gris laiteux */
+  background: rgba(16, 16, 23, 0.62);
+  backdrop-filter: blur(30px) saturate(1.5);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
   border: none;
-  /* le bord droit se dissout sur ~24px seulement -> pas de ligne, mais plus de gros vide */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
-  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
   box-shadow: none;
-  /* marge droite juste ce qu'il faut : le contenu reste net dans la zone pleine */
-  padding: 20px 34px 20px 20px;
+  /* flou doux du bord droit : fondu court (~18px) sur un verre foncé -> bord flou net, sans smear */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
+  padding: 20px 26px 20px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
