@@ -69,6 +69,8 @@ header {
 }
 /* Engrenage réglages : petite rotation rapide au survol / clic */
 #settings-btn {
+  color: var(--accent); /* violet Emeria (assorti au logo) */
+  border-color: rgba(124, 92, 255, 0.35);
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s, background 0.15s;
 }
 #settings-btn:hover {
@@ -243,18 +245,18 @@ main {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 350px;
+  width: 300px;
   /* verre dépoli TRANSLUCIDE : on voit le fond flouté à travers, AUCUNE ligne (bord dissous) */
   background: rgba(18, 18, 26, 0.34);
   backdrop-filter: blur(34px) saturate(1.6);
   -webkit-backdrop-filter: blur(34px) saturate(1.6);
   border: none;
-  /* le flou ET le fond se dissolvent sur ~65px de droite (dans la marge vide) -> plus AUCUNE ligne */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 65px), transparent 100%);
-  mask-image: linear-gradient(to right, #000 calc(100% - 65px), transparent 100%);
+  /* le bord droit se dissout sur ~24px seulement -> pas de ligne, mais plus de gros vide */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
   box-shadow: none;
-  /* grosse marge droite : le contenu reste net, seul le vide se dissout */
-  padding: 20px 66px 20px 20px;
+  /* marge droite juste ce qu'il faut : le contenu reste net dans la zone pleine */
+  padding: 20px 34px 20px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
