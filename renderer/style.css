@@ -4,6 +4,11 @@
   box-sizing: border-box;
   user-select: none;
 }
+/* L'attribut hidden doit TOUJOURS masquer, même sur un élément en display:flex
+   (sinon le bouton "Mettre à jour" reste affiché H24). */
+[hidden] {
+  display: none !important;
+}
 :root {
   --bg: #0e0e12;
   --panel: #16161c;
