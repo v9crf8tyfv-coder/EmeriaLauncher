@@ -23,8 +23,10 @@ body {
 .bg {
   position: absolute;
   inset: 0;
-  /* fond dégradé violet Emeria (halo en haut, dissous vers le bas) */
-  background: radial-gradient(120% 90% at 55% -10%, #3a2170 0%, #170f2e 45%, #0d0d12 100%);
+  /* image du build Emeria + voile sombre par-dessus pour garder l'UI lisible */
+  background:
+    linear-gradient(rgba(10, 10, 16, 0.55), rgba(10, 10, 16, 0.72)),
+    url('bg.jpg') center center / cover no-repeat;
   z-index: -1;
 }
 
@@ -354,6 +356,7 @@ main {
 }
 .tab-content {
   /* petit cadre discret autour de chaque section */
+  margin-bottom: 16px; /* sépare le contenu du bouton "logs" en bas */
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 10px;
