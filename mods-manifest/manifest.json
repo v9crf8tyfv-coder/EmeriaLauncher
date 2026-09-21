@@ -46,7 +46,7 @@
       "name": "citresewn-1.2.2+1.21.jar",
       "sha256": "27f960a57597539cb8dfdd7a926268a123177322b14bea113415a56825c01776",
       "size": 396723,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/citresewn-1.2.2+1.21.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/citresewn-1.2.2.1.21.jar"
     },
     {
       "name": "easy_npc-fabric-1.21.1-7.6.0.jar",
@@ -70,13 +70,13 @@
       "name": "fabric-api-0.116.15+1.21.1.jar",
       "sha256": "a61a10f730ab8aa45ff42486ee65699e6e51c28a0c168deb161e7d4029473aa3",
       "size": 2452718,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-api-0.116.15+1.21.1.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-api-0.116.15.1.21.1.jar"
     },
     {
       "name": "fabric-language-kotlin-1.13.13+kotlin.2.4.10.jar",
       "sha256": "34ccdacf13bb9351fe43ce61912c2e09b72364e43e787d36ba3d2d04dec75a52",
       "size": 8076363,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-language-kotlin-1.13.13+kotlin.2.4.10.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-language-kotlin-1.13.13.kotlin.2.4.10.jar"
     },
     {
       "name": "flyspeed-1.0.3.jar",
@@ -88,7 +88,7 @@
       "name": "iris-fabric-1.8.14-beta.1+mc1.21.1.jar",
       "sha256": "0ceb694040b4628bf3fa02286cfe5f0db833195669ab07f8caa4001359763eff",
       "size": 2791343,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/iris-fabric-1.8.14-beta.1+mc1.21.1.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/iris-fabric-1.8.14-beta.1.mc1.21.1.jar"
     },
     {
       "name": "libIPN-fabric-1.21.1-6.6.3.jar",
@@ -124,19 +124,19 @@
       "name": "placeholder-api-2.4.2+1.21.jar",
       "sha256": "c0187ee299527ac7a3e0b1e83601dcdc0de631e286fe41e6be1a75958ea8e443",
       "size": 232325,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/placeholder-api-2.4.2+1.21.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/placeholder-api-2.4.2.1.21.jar"
     },
     {
       "name": "sodium-extra-fabric-0.9.3+mc1.21.1.jar",
       "sha256": "c99dfbfe2fe310aa43b322f784e3d314f574f85ba1c87dc932dbfa68f349bac1",
       "size": 469925,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/sodium-extra-fabric-0.9.3+mc1.21.1.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/sodium-extra-fabric-0.9.3.mc1.21.1.jar"
     },
     {
       "name": "sodium-fabric-0.8.12+mc1.21.1.jar",
       "sha256": "9ad11a616d1ca759867de8a5bbafcde5ab50b68dbd674110c7b90aeea251b793",
       "size": 1573180,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/sodium-fabric-0.8.12+mc1.21.1.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/sodium-fabric-0.8.12.mc1.21.1.jar"
     },
     {
       "name": "xaerominimap-fabric-1.21.1-26.4.2.jar",
@@ -154,13 +154,13 @@
       "name": "yet_another_config_lib_v3-3.8.2+1.21.1-fabric.jar",
       "sha256": "6ab420b7d1326fc9851b96a8967504bd644da421ed6438ceb9a9d9c993a408b1",
       "size": 1131265,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/yet_another_config_lib_v3-3.8.2+1.21.1-fabric.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/yet_another_config_lib_v3-3.8.2.1.21.1-fabric.jar"
     },
     {
       "name": "zoomify-2.15.2+1.21.1.jar",
       "sha256": "6c317987df28922e227ab3ac4e39090460d99b965bcb9c8da8f9a4493b705d00",
       "size": 872937,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/zoomify-2.15.2+1.21.1.jar"
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/zoomify-2.15.2.1.21.1.jar"
     },
     {
       "name": "Chunky-Fabric-1.4.23.jar",

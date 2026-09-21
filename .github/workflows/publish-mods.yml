@@ -39,6 +39,19 @@ jobs:
               emeriacore*.jar) echo "supprime $a"; gh release delete-asset mods "$a" --repo "$R" --yes || true ;;
             esac
           done
+          # 1bis) garde-fou : GitHub remplace le "+" des noms d'assets par ".".
+          # On aligne donc les URLs du manifeste (+ -> .) pour éviter les 404 de download.
+          python3 - <<'PY'
+          import json
+          p='mods-manifest/manifest.json'
+          d=json.load(open(p)); n=0
+          for k in ('mods','resourcepacks','optional'):
+              for m in d.get(k,[]) or []:
+                  if isinstance(m,dict) and '+' in m.get('url',''):
+                      m['url']=m['url'].replace('+','.'); n+=1
+          json.dump(d,open(p,'w'),indent=2,ensure_ascii=False)
+          print('URLs assainies:',n)
+          PY
           # 2) upload propre : jar au nom stable + manifest (avec l'entrée emeriacore)
           gh release upload mods mods-manifest/emeriacore-1.0.0.jar mods-manifest/manifest.json --repo "$R" --clobber
           echo "Publié : emeriacore-1.0.0.jar + manifest.json"
