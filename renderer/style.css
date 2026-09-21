@@ -36,12 +36,18 @@ header {
   position: relative;
 }
 .brand {
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--accent);
   position: relative;
   top: 26px; /* décalé un peu vers le bas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brand-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+  image-rendering: pixelated; /* garde le pixel-art net */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
 }
 .icon-btn {
   position: absolute;
