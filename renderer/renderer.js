@@ -2,6 +2,9 @@ const loginBtn = document.getElementById('login');
 const loginLabel = document.getElementById('login-label');
 const headImg = document.getElementById('head');
 const playBtn = document.getElementById('play');
+const playImg = document.getElementById('play-img');
+const updateImg = document.getElementById('update-img');
+function setPlay(name) { if (playImg) playImg.src = 'btn-' + name + '.png'; }
 const statusEl = document.getElementById('status');
 
 const settingsBtn = document.getElementById('settings-btn');
@@ -83,14 +86,14 @@ document.addEventListener('click', (e) => {
 // Lancer -> JEU EN COURS
 playBtn.addEventListener('click', async () => {
   playBtn.disabled = true;
-  playBtn.textContent = 'JEU EN COURS';
+  setPlay('jeu-en-cours');
   statusEl.textContent = 'Démarrage…';
   try {
     await window.api.launch();
     statusEl.textContent = 'Jeu en cours 🎮';
   } catch (e) {
     statusEl.textContent = 'Erreur : ' + (e?.message || e);
-    playBtn.textContent = 'LANCER';
+    setPlay('jouer');
     playBtn.disabled = false;
   }
 });
@@ -98,7 +101,7 @@ playBtn.addEventListener('click', async () => {
 // Le jeu se ferme -> LANCER revient
 window.api.onClosed(() => {
   statusEl.textContent = connected ? 'Prêt à jouer' : 'Connecte-toi pour jouer';
-  playBtn.textContent = 'LANCER';
+  setPlay('jouer');
   playBtn.disabled = !connected;
 });
 
@@ -115,14 +118,14 @@ window.api.onUpdateButton(() => {
 if (updateBtn) {
   updateBtn.addEventListener('click', () => {
     window.api.downloadUpdate();
-    updateBtn.textContent = '⬇ Téléchargement lancé…';
+    if (updateImg) updateImg.src = 'btn-mise-a-jour.png';
   });
 }
 // Vraie maj en cours (Windows/Linux qui se télécharge) : on bloque le lancement
 window.api.onUpdate((msg) => {
   statusEl.textContent = msg;
   playBtn.disabled = true;
-  playBtn.textContent = 'MISE À JOUR…';
+  setPlay('mise-a-jour');
 });
 window.api.onProgress((p) => {
   if (p && p.total) {

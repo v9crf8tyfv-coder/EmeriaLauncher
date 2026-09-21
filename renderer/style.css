@@ -152,23 +152,35 @@ main {
   justify-content: center;
   gap: 20px;
 }
+/* Bouton principal = image pixel-art (JOUER / JEU EN COURS / MISE À JOUR…) dans un cadre fixe */
 .play-btn {
-  padding: 15px 76px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #fff;
+  width: 280px;
+  height: 76px;
+  padding: 6px;
   border: none;
-  border-radius: 10px;
-  background: var(--accent);
+  background: transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.15s;
+}
+.play-btn img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
 }
 .play-btn:hover:not(:disabled) {
-  filter: brightness(1.12);
+  filter: brightness(1.08);
+}
+.play-btn:active:not(:disabled) {
+  transform: translateY(3px) scale(0.97);
 }
 .play-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 .ip-box {
@@ -390,20 +402,31 @@ input[type='range'] {
   background: rgba(255, 255, 255, 0.04);
 }
 
-/* Bouton "Mettre à jour" (affiché quand une maj Mac est dispo) */
+/* Bouton "Mettre à jour" (image, affiché quand une maj Mac est dispo) */
 .update-btn {
   margin-top: 12px;
-  padding: 11px 32px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #fff;
+  width: 260px;
+  height: 58px;
+  padding: 4px;
   border: none;
-  border-radius: 10px;
-  background: var(--accent);
+  background: transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.15s;
+}
+.update-btn img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
 }
 .update-btn:hover {
-  filter: brightness(1.12);
+  filter: brightness(1.08);
+}
+.update-btn:active {
+  transform: translateY(3px) scale(0.97);
 }

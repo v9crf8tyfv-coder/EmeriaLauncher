@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, clipboard, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, clipboard, shell, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -56,6 +56,7 @@ const SERVER_IP = `${SERVER.host}:${SERVER.port}`;
 const LOG_WEBHOOK = '';
 
 let mainWindow;
+let tray = null; // icône barre système (Windows)
 let mcToken = null; // token pour minecraft-launcher-core
 const authManager = new Auth('select_account');
 
@@ -95,10 +96,38 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
+// Icône dans la barre système Windows (à côté de l'horloge). Clic = afficher le launcher.
+function createTray() {
+  if (process.platform !== 'win32' || tray) return;
+  try {
+    const img = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png'));
+    tray = new Tray(img.isEmpty() ? path.join(__dirname, 'build', 'icon.png') : img);
+    tray.setToolTip('EmeriaMC');
+    const showWindow = () => {
+      if (!mainWindow || mainWindow.isDestroyed()) return createWindow();
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    };
+    tray.setContextMenu(
+      Menu.buildFromTemplate([
+        { label: 'Ouvrir EmeriaMC', click: showWindow },
+        { type: 'separator' },
+        { label: 'Quitter', click: () => app.quit() },
+      ]),
+    );
+    tray.on('click', showWindow);
+    tray.on('double-click', showWindow);
+  } catch (e) {
+    logger.log('tray init failed', String(e));
+  }
+}
+
 app.whenReady().then(() => {
   logger.init();
   logger.log('launcher start', app.getVersion());
   createWindow();
+  createTray(); // barre système Windows
   discordRpc.start(DISCORD_APP_ID); // « Joue à EmeriaMC » sur Discord (Rich Presence)
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
@@ -284,6 +313,12 @@ ipcMain.handle('launch', async () => {
   launcher.on('progress', (p) => send('progress', p));
   launcher.on('close', (code) => {
     logger.log('game closed code=' + code);
+    // Jeu fermé -> on remet le launcher au premier plan
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
     send('closed', code);
     discordRpc.onLauncher(); // retour « sur le launcher »
   });
@@ -299,5 +334,10 @@ ipcMain.handle('launch', async () => {
   logger.log('launch spawned');
   discordRpc.onInGame(); // « En jeu » sur Discord
   send('status', 'Jeu en cours 🎮');
+  // Corrige le bug « curseur bloqué dans le launcher » : on rend la main au jeu.
+  // Petit délai le temps que la fenêtre Minecraft apparaisse, puis on minimise le launcher.
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
+  }, 3000);
   return true;
 });
