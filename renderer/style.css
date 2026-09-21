@@ -216,9 +216,8 @@ main {
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(10, 8, 20, 0.30);
-  backdrop-filter: blur(14px) saturate(1.25);
-  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  /* Pas de flou sur toute la page : juste un très léger voile. Seul le tiroir floute (verre). */
+  background: rgba(0, 0, 0, 0.18);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s ease;
@@ -232,18 +231,51 @@ main {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 300px;
-  /* verre dépoli : fond translucide + flou + reflets */
-  background: rgba(22, 22, 30, 0.55);
-  backdrop-filter: blur(26px) saturate(1.4);
-  -webkit-backdrop-filter: blur(26px) saturate(1.4);
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 45px rgba(0, 0, 0, 0.5), inset 1px 0 0 rgba(255, 255, 255, 0.10);
-  padding: 20px;
+  width: 350px;
+  /* verre dépoli TRANSLUCIDE : on voit le fond flouté à travers, AUCUNE ligne (bord dissous) */
+  background: rgba(18, 18, 26, 0.34);
+  backdrop-filter: blur(34px) saturate(1.6);
+  -webkit-backdrop-filter: blur(34px) saturate(1.6);
+  border: none;
+  /* le flou ET le fond se dissolvent sur ~65px de droite (dans la marge vide) -> plus AUCUNE ligne */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 65px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 65px), transparent 100%);
+  box-shadow: none;
+  /* grosse marge droite : le contenu reste net, seul le vide se dissout */
+  padding: 20px 66px 20px 20px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   transform: translateX(-18px);
   opacity: 0;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+}
+/* Cat-body prend la place restante -> bouton "logs" poussé tout en bas */
+.cat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#send-logs {
+  margin-top: auto;
+}
+/* Croix de fermeture : petit bouton ENCADRÉ (verre), pivote au survol */
+#settings-close {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 17px;
+  opacity: 0.9;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s, background 0.15s, border-color 0.15s;
+}
+#settings-close:hover {
+  opacity: 1;
+  color: var(--txt);
+  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.24);
 }
 .overlay.open .drawer {
   transform: translateX(0);
@@ -289,13 +321,15 @@ main {
   color: var(--accent);
 }
 .tab-content {
-  min-height: 60px;
-  /* cadre (carte) autour de chaque section : RAM, Mods, Shaders… */
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* petit cadre discret autour de chaque section */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 11px 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.tab-content > label {
+  margin-bottom: 8px;
 }
 .tab-content > label {
   display: block;
