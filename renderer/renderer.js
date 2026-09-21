@@ -217,4 +217,10 @@ sendLogsBtn.addEventListener('click', async () => {
   setTimeout(() => (sendLogsBtn.textContent = 'Envoyer les logs (problème ?)'), 2500);
 });
 
+// Version en bas à droite (tout petit)
+window.api.getVersion().then((v) => {
+  const el = document.getElementById('app-version');
+  if (el && v) el.textContent = 'v' + v;
+}).catch(() => {});
+
 loadSettings();

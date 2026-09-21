@@ -250,6 +250,7 @@ ipcMain.handle('setRamAuto', (_e, v) => {
   return recommendedRamGB();
 });
 ipcMain.handle('copyIp', () => clipboard.writeText(SERVER_IP));
+ipcMain.handle('getVersion', () => app.getVersion());
 
 // ---- Logs ----
 ipcMain.handle('sendLogs', async () => {

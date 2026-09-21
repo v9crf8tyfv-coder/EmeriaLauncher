@@ -230,6 +230,19 @@ main {
   transition: width 0.2s;
 }
 
+/* Version en tout petit, en bas à droite */
+.app-version {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.5;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+  z-index: 3;
+}
+
 /* Réglages — tiroir gauche (effet "liquid glass" + animation rapide) */
 .overlay {
   position: absolute;

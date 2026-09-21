@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('api', {
   downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),
   copyIp: () => ipcRenderer.invoke('copyIp'),
   sendLogs: () => ipcRenderer.invoke('sendLogs'),
+  getVersion: () => ipcRenderer.invoke('getVersion'),
   // événements
   onSession: (cb) => ipcRenderer.on('session', (_e, d) => cb(d)),
   onUpdateButton: (cb) => ipcRenderer.on('updateButton', (_e, d) => cb(d)),
