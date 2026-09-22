@@ -214,6 +214,20 @@ function mergeKeybinds(optSrc, optDst) {
   }
 }
 
+/** Empreinte du SCHÉMA de touches (seulement les lignes key_*) du fichier fourni. */
+function keybindsHash(optSrc) {
+  try {
+    const lines = fs
+      .readFileSync(optSrc, 'utf8')
+      .split('\n')
+      .filter((l) => /^key_[^:]+:/.test(l))
+      .sort();
+    return crypto.createHash('sha1').update(lines.join('\n')).digest('hex');
+  } catch {
+    return '';
+  }
+}
+
 function installConfigs(bundledDir, root) {
   const optSrc = path.join(bundledDir, 'options.txt');
   const optDst = path.join(root, 'options.txt');
@@ -244,10 +258,21 @@ function installConfigs(bundledDir, root) {
     fs.mkdirSync(path.dirname(badgeDst), { recursive: true });
     try { fs.copyFileSync(badgeSrc, badgeDst); } catch { /* ignore */ }
   }
-  // options.txt : 1er lancement -> tout ; nouvelle config -> seulement les TOUCHES (garde son/fov perso).
+  // options.txt :
+  //  - 1er lancement -> copie tout (touches + réglages par défaut).
+  //  - ensuite -> on ne RÉ-applique les touches QUE si le SCHÉMA de touches par défaut a
+  //    changé (nouveau schéma poussé par Emeria). Une simple maj de mods/shaders ne touche
+  //    plus aux touches : le joueur GARDE ses touches perso (ex. son propre bind du drop).
   if (fs.existsSync(optSrc)) {
-    if (!fs.existsSync(optDst)) fs.copyFileSync(optSrc, optDst);
-    else if (force) mergeKeybinds(optSrc, optDst);
+    const kbMarker = path.join(root, '.emeria-keybinds-version');
+    const kbVersion = keybindsHash(optSrc);
+    if (!fs.existsSync(optDst)) {
+      fs.copyFileSync(optSrc, optDst); // 1er lancement -> tout
+    } else {
+      const kbApplied = fs.existsSync(kbMarker) ? fs.readFileSync(kbMarker, 'utf8').trim() : '';
+      if (kbVersion && kbVersion !== kbApplied) mergeKeybinds(optSrc, optDst); // schéma changé -> une fois
+    }
+    try { if (kbVersion) fs.writeFileSync(kbMarker, kbVersion); } catch { /* ignore */ }
   }
 
   try { fs.writeFileSync(marker, version); } catch { /* ignore */ }
