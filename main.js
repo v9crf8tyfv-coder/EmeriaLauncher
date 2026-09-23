@@ -238,6 +238,13 @@ ipcMain.handle('setAxiom', (_e, v) => store.set('axiomEnabled', !!v));
 ipcMain.handle('downloadUpdate', () => {
   const asset = process.platform === 'darwin' ? 'EmeriaMC-mac.dmg' : 'EmeriaMC-windows.exe';
   shell.openExternal(`https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest/download/${asset}`);
+  // Mac (non signé) : le .dmg ne s'auto-installe pas. On ouvre le téléchargement puis on FERME
+  // le launcher tout seul quelques secondes après -> le joueur installe la nouvelle version
+  // sans avoir l'ancien launcher qui traîne. (Windows/Linux : maj auto, ne passe pas ici.)
+  if (process.platform === 'darwin') {
+    send('status', 'Téléchargement ouvert — fermeture du launcher…');
+    setTimeout(() => app.quit(), 4000);
+  }
 });
 ipcMain.handle('setRam', (_e, v) => {
   const n = Math.max(2, Math.min(maxRamGB(), Number(v) || 4));
