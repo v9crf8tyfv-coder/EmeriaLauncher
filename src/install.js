@@ -259,20 +259,11 @@ function installConfigs(bundledDir, root) {
     try { fs.copyFileSync(badgeSrc, badgeDst); } catch { /* ignore */ }
   }
   // options.txt :
-  //  - 1er lancement -> copie tout (touches + réglages par défaut).
-  //  - ensuite -> on ne RÉ-applique les touches QUE si le SCHÉMA de touches par défaut a
-  //    changé (nouveau schéma poussé par Emeria). Une simple maj de mods/shaders ne touche
-  //    plus aux touches : le joueur GARDE ses touches perso (ex. son propre bind du drop).
-  if (fs.existsSync(optSrc)) {
-    const kbMarker = path.join(root, '.emeria-keybinds-version');
-    const kbVersion = keybindsHash(optSrc);
-    if (!fs.existsSync(optDst)) {
-      fs.copyFileSync(optSrc, optDst); // 1er lancement -> tout
-    } else {
-      const kbApplied = fs.existsSync(kbMarker) ? fs.readFileSync(kbMarker, 'utf8').trim() : '';
-      if (kbVersion && kbVersion !== kbApplied) mergeKeybinds(optSrc, optDst); // schéma changé -> une fois
-    }
-    try { if (kbVersion) fs.writeFileSync(kbMarker, kbVersion); } catch { /* ignore */ }
+  //  - 1er lancement (aucun options.txt) -> on copie les défauts Emeria (touches + réglages).
+  //  - ensuite -> on ne TOUCHE PLUS JAMAIS au fichier : le joueur garde SES touches perso,
+  //    même après une mise à jour. Le schéma Emeria n'est posé qu'une seule fois.
+  if (fs.existsSync(optSrc) && !fs.existsSync(optDst)) {
+    fs.copyFileSync(optSrc, optDst);
   }
 
   try { fs.writeFileSync(marker, version); } catch { /* ignore */ }
