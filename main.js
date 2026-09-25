@@ -170,6 +170,9 @@ function setupAutoUpdate() {
   });
   autoUpdater.on('error', (e) => logger.log('updater error', e?.message));
   autoUpdater.checkForUpdates().catch(() => {});
+  // Revérifie toutes les 10 min : si une maj sort pendant que le launcher est déjà ouvert,
+  // le bouton "Mettre à jour" apparaît tout seul (plus besoin de fermer/rouvrir).
+  setInterval(() => { autoUpdater.checkForUpdates().catch(() => {}); }, 10 * 60 * 1000);
 }
 
 // ---- Tête Minecraft (data URL, pour respecter le CSP) ----
