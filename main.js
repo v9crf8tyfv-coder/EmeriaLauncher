@@ -57,6 +57,7 @@ const LOG_WEBHOOK = '';
 
 let mainWindow;
 let tray = null; // icône barre système (Windows)
+let gameRunning = false; // une seule partie à la fois (empêche 2 comptes lancés en même temps)
 let mcToken = null; // token pour minecraft-launcher-core
 const authManager = new Auth('select_account');
 
@@ -282,6 +283,9 @@ ipcMain.handle('sendLogs', async () => {
 // ---- Lancer le jeu (connexion directe au serveur) ----
 ipcMain.handle('launch', async () => {
   if (!mcToken) throw new Error('Non connecté');
+  if (gameRunning) throw new Error('Une partie est déjà lancée (un seul jeu à la fois).');
+  gameRunning = true; // verrou : réinitialisé à la fermeture du jeu (ou en cas d'erreur)
+  try {
   const ram = store.get('ramAuto', true)
     ? recommendedRamGB()
     : Math.min(store.get('ram', 4), maxRamGB());
@@ -321,6 +325,7 @@ ipcMain.handle('launch', async () => {
   launcher.on('progress', (p) => send('progress', p));
   launcher.on('close', (code) => {
     logger.log('game closed code=' + code);
+    gameRunning = false; // partie terminée -> on peut relancer
     // Jeu fermé -> on remet le launcher au premier plan
     if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMinimized()) mainWindow.restore();
@@ -348,4 +353,8 @@ ipcMain.handle('launch', async () => {
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
   }, 3000);
   return true;
+  } catch (e) {
+    gameRunning = false; // échec du lancement -> on libère le verrou pour pouvoir réessayer
+    throw e;
+  }
 });
