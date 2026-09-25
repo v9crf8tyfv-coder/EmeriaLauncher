@@ -71,9 +71,15 @@ loginBtn.addEventListener('click', async (e) => {
 
 // Déconnexion
 logoutBtn.addEventListener('click', async () => {
-  await window.api.logout();
-  accountMenu.hidden = true;
-  setDisconnected();
+  try {
+    await window.api.logout();
+    accountMenu.hidden = true;
+    setDisconnected();
+  } catch (e) {
+    // Ex: partie en cours -> déconnexion refusée
+    accountMenu.hidden = true;
+    statusEl.textContent = e?.message?.replace(/^Error:\s*/, '') || 'Déconnexion impossible.';
+  }
 });
 
 // Fermer le menu si on clique ailleurs

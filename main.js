@@ -211,6 +211,9 @@ async function trySilentLogin() {
 }
 
 ipcMain.handle('logout', () => {
+  // On NE laisse PAS se déconnecter/changer de compte pendant qu'une partie tourne
+  // (sinon on pourrait relancer avec un 2e compte). Il faut fermer le jeu d'abord.
+  if (gameRunning) throw new Error('Ferme d’abord ton jeu avant de te déconnecter.');
   mcToken = null;
   store.set('session', null);
   logger.log('logout');
