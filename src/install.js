@@ -47,10 +47,16 @@ async function syncModsFromManifest(root, onProgress) {
   const wanted = Array.isArray(manifest.mods) ? manifest.mods : [];
   const wantedNames = new Set(wanted.map((m) => m.name));
 
-  // Retire les mods qui ne sont plus dans le manifeste (sauf Axiom, géré séparément)
+  // On ne supprime QUE les mods qu'Emeria a installés lui-même AVANT et qui ont été retirés
+  // du manifeste. Les mods ajoutés par le joueur/staff (WorldEdit, WorldEditCUI…) ne sont
+  // JAMAIS supprimés (avant, tout mod hors manifeste était effacé -> ils disparaissaient).
+  const managedMarker = path.join(root, '.emeria-managed-mods');
+  let prevManaged = [];
+  try { prevManaged = JSON.parse(fs.readFileSync(managedMarker, 'utf8')); } catch { /* 1re fois */ }
+  const prevSet = new Set(Array.isArray(prevManaged) ? prevManaged : []);
   for (const f of fs.readdirSync(to)) {
     if (!f.endsWith('.jar') || /axiom/i.test(f)) continue;
-    if (!wantedNames.has(f)) {
+    if (!wantedNames.has(f) && prevSet.has(f)) { // Emeria le gérait, plus au manifeste -> retire
       try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
     }
   }
@@ -65,6 +71,9 @@ async function syncModsFromManifest(root, onProgress) {
     }
     i++;
   }
+
+  // Mémorise la liste des mods GÉRÉS par Emeria (pour ne supprimer QUE ceux-là à l'avenir).
+  try { fs.writeFileSync(managedMarker, JSON.stringify([...wantedNames])); } catch { /* ignore */ }
 }
 
 /** Endpoint panel : renvoie les pseudos Axiom = staff Responsable+ (auto) ∪ ajouts manuels. */
@@ -249,7 +258,9 @@ function installConfigs(bundledDir, root) {
     if (!fs.existsSync(from)) continue;
     // Sur config/, on protège les fichiers graphiques/shaders du joueur (jamais réécrasés).
     const preserve = sub === 'config' ? GRAPHICS_PRESERVE : null;
-    copyRecursive(from, path.join(root, sub), force, preserve); // force = applique la nouvelle config
+    // shaderpacks : on n'ÉCRASE JAMAIS ceux du joueur (copie seulement si absent) -> shaders perso gardés.
+    const doForce = sub === 'shaderpacks' ? false : force;
+    copyRecursive(from, path.join(root, sub), doForce, preserve);
   }
   // Le pack de badges est TOUJOURS rafraîchi (écrase l'ancien).
   const badgeSrc = path.join(bundledDir, 'resourcepacks', 'EmeriaBadges.zip');
