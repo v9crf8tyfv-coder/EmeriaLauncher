@@ -270,7 +270,14 @@ ipcMain.handle('getVersion', () => app.getVersion());
 ipcMain.handle('sendLogs', async () => {
   try {
     if (!LOG_WEBHOOK) {
-      shell.showItemInFolder(logger.file);
+      // On ouvre les logs DU JEU (latest.log + crash-reports) qui contiennent l'info utile,
+      // sinon le dossier .emeria, sinon le log du launcher. (Avant : dossier launcher ~vide.)
+      const gameLatest = path.join(MC_ROOT, 'logs', 'latest.log');
+      const gameLogs = path.join(MC_ROOT, 'logs');
+      if (fs.existsSync(gameLatest)) shell.showItemInFolder(gameLatest);
+      else if (fs.existsSync(gameLogs)) shell.openPath(gameLogs);
+      else if (fs.existsSync(MC_ROOT)) shell.openPath(MC_ROOT);
+      else shell.showItemInFolder(logger.file);
       return 'reveal';
     }
     const data = fs.readFileSync(logger.file);
