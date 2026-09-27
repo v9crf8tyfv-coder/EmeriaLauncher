@@ -55,7 +55,7 @@ async function syncModsFromManifest(root, onProgress) {
   try { prevManaged = JSON.parse(fs.readFileSync(managedMarker, 'utf8')); } catch { /* 1re fois */ }
   const prevSet = new Set(Array.isArray(prevManaged) ? prevManaged : []);
   for (const f of fs.readdirSync(to)) {
-    if (!f.endsWith('.jar') || /axiom/i.test(f)) continue;
+    if (!f.endsWith('.jar') || /axiom|worldedit/i.test(f)) continue; // WorldEdit/CUI = outils staff, jamais supprimés
     if (!wantedNames.has(f) && prevSet.has(f)) { // Emeria le gérait, plus au manifeste -> retire
       try { fs.unlinkSync(path.join(to, f)); } catch { /* ignore */ }
     }
