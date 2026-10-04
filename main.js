@@ -34,6 +34,7 @@ const {
   syncModsFromManifest,
   syncResourcepacksFromManifest,
   getAxiomAllowed,
+  getComAllowed,
   getManifestDisplayLists,
   installConfigs,
   ensureResourcePackEnabled,
@@ -72,6 +73,20 @@ async function refreshAxiomAllowed() {
 }
 function canUseAxiom() {
   return !!(mcToken && AXIOM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
+}
+
+// Comptes autorisés à la catégorie Com du launcher. Xtazzking + Orionyx84 par défaut (hardcodés),
+// + les ajouts du panel (manifeste comAllowed). Insensible à la casse.
+const COM_DEFAULT = ['xtazzking', 'orionyx84'];
+let COM_ALLOWED = [...COM_DEFAULT];
+async function refreshComAllowed() {
+  try {
+    const list = await getComAllowed();
+    if (list) COM_ALLOWED = [...new Set([...COM_DEFAULT, ...list])];
+  } catch { /* garde les défauts */ }
+}
+function canUseCom() {
+  return !!(mcToken && COM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
 }
 
 // Liste des mods affichée dans le launcher. Par défaut = liste embarquée (content.js),
@@ -132,6 +147,7 @@ app.whenReady().then(() => {
   discordRpc.start(DISCORD_APP_ID); // « Joue à EmeriaMC » sur Discord (Rich Presence)
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
+  void refreshComAllowed();   // met à jour la liste Com depuis le manifeste (panel)
   void refreshDisplayMods();  // met à jour la liste des mods affichée depuis le manifeste (panel)
   mainWindow.webContents.once('did-finish-load', trySilentLogin);
 });
@@ -236,11 +252,14 @@ ipcMain.handle('getSettings', () => {
     shaderEnabled: store.get('shaderEnabled', true),
     canUseAxiom: canUseAxiom(),               // toggle Axiom visible seulement pour le staff build
     axiomEnabled: store.get('axiomEnabled', true),
+    canUseCom: canUseCom(),                   // catégorie Com visible seulement pour les autorisés
+    comEnabled: store.get('comEnabled', true),
     ip: SERVER_IP,
   };
 });
 ipcMain.handle('setShader', (_e, v) => store.set('shaderEnabled', !!v));
 ipcMain.handle('setAxiom', (_e, v) => store.set('axiomEnabled', !!v));
+ipcMain.handle('setCom', (_e, v) => store.set('comEnabled', !!v));
 // Bouton "Mettre à jour" (Mac non signé) : télécharge le bon installeur
 ipcMain.handle('downloadUpdate', () => {
   const asset = process.platform === 'darwin' ? 'EmeriaMC-mac.dmg' : 'EmeriaMC-windows.exe';
@@ -356,6 +375,9 @@ ipcMain.handle('launch', async () => {
     memory: { max: `${ram}G`, min: '2G' },
     javaPath, // Java du launcher (ignore celui du système -> aucun conflit)
     quickPlay: { type: 'multiplayer', identifier: SERVER_IP }, // connexion directe
+    // Catégorie Com : active la caméra (/cam) côté mod via une propriété JVM, seulement si
+    // le compte est autorisé Com ET que le toggle est activé.
+    customArgs: (canUseCom() && store.get('comEnabled', true)) ? ['-Demeriacore.cam=true'] : [],
   });
   logger.log('launch spawned');
   discordRpc.onInGame(); // « En jeu » sur Discord

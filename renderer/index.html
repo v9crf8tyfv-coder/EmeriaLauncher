@@ -46,6 +46,7 @@
           <button class="cat" data-tab="mods">Mods</button>
           <button class="cat" data-tab="shaders">Shaders</button>
           <button class="cat" data-tab="axiom" id="cat-axiom" hidden>Axiom</button>
+          <button class="cat" data-tab="com" id="cat-com" hidden>Com</button>
         </nav>
 
         <div class="cat-body">
@@ -77,6 +78,14 @@
               <span>Activer Axiom (staff build)</span>
             </label>
             <div class="hint">Réservé au staff build. Prend effet au prochain lancement.</div>
+          </div>
+
+          <div class="tab-content" id="tab-com" hidden>
+            <label class="toggle-row">
+              <input type="checkbox" id="com-toggle" />
+              <span>Activer la caméra (Com)</span>
+            </label>
+            <div class="hint">Catégorie Com. Active le mode caméra en jeu (/cam add, /cam play…). Prend effet au prochain lancement.</div>
           </div>
 
           <button id="send-logs" class="ghost-btn">Envoyer les logs (problème ?)</button>

@@ -104,6 +104,25 @@ async function getAxiomAllowed() {
   }
 }
 
+/** Pseudos (minuscules) autorisés à la catégorie Com du launcher. null si indispo.
+ *  Même source que Axiom (endpoint du panel), champ `com` ; repli manifeste comAllowed. */
+async function getComAllowed() {
+  try {
+    const r = await fetch(AXIOM_PANEL_URL + '?t=' + Date.now());
+    if (r.ok) {
+      const d = await r.json();
+      if (Array.isArray(d.com)) return d.com.map((s) => String(s).toLowerCase());
+    }
+  } catch { /* panel indispo -> repli manifeste */ }
+  try {
+    const manifest = await fetchManifest();
+    const list = Array.isArray(manifest.comAllowed) ? manifest.comAllowed : null;
+    return list ? list.map((s) => String(s).toLowerCase()) : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Synchronise les resourcepacks depuis le manifeste (ajout / mise à jour seulement).
  * Ne supprime PAS les packs fournis avec le launcher (ex : Better Leaves).
@@ -434,6 +453,7 @@ module.exports = {
   syncModsFromManifest,
   syncResourcepacksFromManifest,
   getAxiomAllowed,
+  getComAllowed,
   getManifestDisplayLists,
   prettyModName,
   installConfigs,

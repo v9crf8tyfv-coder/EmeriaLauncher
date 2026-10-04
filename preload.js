@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   setRamAuto: (v) => ipcRenderer.invoke('setRamAuto', v),
   setShader: (v) => ipcRenderer.invoke('setShader', v),
   setAxiom: (v) => ipcRenderer.invoke('setAxiom', v),
+  setCom: (v) => ipcRenderer.invoke('setCom', v),
   downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),
   copyIp: () => ipcRenderer.invoke('copyIp'),
   sendLogs: () => ipcRenderer.invoke('sendLogs'),
