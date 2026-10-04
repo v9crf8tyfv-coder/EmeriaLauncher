@@ -162,20 +162,53 @@ function send(channel, data) {
 
 // ---- Auto-update ----
 const RELEASES_URL = 'https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest';
+// Compare deux versions "x.y.z" -> true si b est plus récente que a.
+function isNewer(a, b) {
+  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (y > x) return true;
+    if (y < x) return false;
+  }
+  return false;
+}
+
+// macOS non signé : electron-updater ne peut PAS vérifier la signature de code -> il échoue
+// en silence et ne détecte jamais les maj. On vérifie donc nous-mêmes via l'API GitHub.
+async function checkMacUpdate() {
+  try {
+    const res = await fetch(
+      'https://api.github.com/repos/v9crf8tyfv-coder/EmeriaLauncher/releases/latest',
+      { headers: { Accept: 'application/vnd.github+json' } },
+    );
+    if (!res.ok) { logger.log('mac update check http', res.status); return; }
+    const data = await res.json();
+    const latest = String(data.tag_name || '').replace(/^v/, '');
+    const current = app.getVersion();
+    logger.log('mac update check', 'current', current, 'latest', latest);
+    if (latest && isNewer(current, latest)) {
+      send('updateInfo', `Nouvelle version dispo (v${latest})`);
+      send('updateButton', true);
+    }
+  } catch (e) {
+    logger.log('mac update check error', e?.message);
+  }
+}
+
 function setupAutoUpdate() {
   const isMac = process.platform === 'darwin';
-  // macOS non signé : l'auto-install ne marche pas -> on renvoie vers le téléchargement.
-  autoUpdater.autoDownload = !isMac;
+  if (isMac) {
+    // Mac : on NE bloque PAS LANCER. Vérification manuelle -> bouton "Mettre à jour".
+    checkMacUpdate();
+    setInterval(checkMacUpdate, 10 * 60 * 1000);
+    return;
+  }
+  // Windows/Linux : electron-updater fonctionne -> maj auto téléchargée + installée.
+  autoUpdater.autoDownload = true;
   autoUpdater.on('update-available', () => {
-    if (isMac) {
-      // Mac non signé : on NE bloque PAS LANCER. On affiche un bouton "Mettre à jour"
-      // qui télécharge le bon launcher automatiquement (plus besoin du Drive/GitHub).
-      send('updateInfo', 'Nouvelle version dispo');
-      send('updateButton', true);
-    } else {
-      // Windows/Linux : la maj se télécharge et s'installe -> on bloque LANCER le temps du dl.
-      send('update', 'Mise à jour disponible, téléchargement…');
-    }
+    // La maj se télécharge et s'installe -> on bloque LANCER le temps du dl.
+    send('update', 'Mise à jour disponible, téléchargement…');
   });
   autoUpdater.on('download-progress', (p) =>
     send('update', `Mise à jour du launcher… ${Math.round(p.percent)}%`),
@@ -186,8 +219,7 @@ function setupAutoUpdate() {
   });
   autoUpdater.on('error', (e) => logger.log('updater error', e?.message));
   autoUpdater.checkForUpdates().catch(() => {});
-  // Revérifie toutes les 10 min : si une maj sort pendant que le launcher est déjà ouvert,
-  // le bouton "Mettre à jour" apparaît tout seul (plus besoin de fermer/rouvrir).
+  // Revérifie toutes les 10 min : si une maj sort pendant que le launcher est déjà ouvert.
   setInterval(() => { autoUpdater.checkForUpdates().catch(() => {}); }, 10 * 60 * 1000);
 }
 
