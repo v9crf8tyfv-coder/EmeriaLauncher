@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Console Emeria</title>
 <style>
-  :root{ --bg:#0a0a0c; --fg:#cfd2d6; --dim:#6a6f78; --acc:#7c5cff; --line:#1c1d22; }
+  :root{ --bg:#0b0b0d; --fg:#c3c6cc; --dim:#565b63; --acc:#8b82c9; --line:#1b1c21; }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html,body{ height:100%; }
   body{ background:var(--bg); color:var(--fg);
@@ -45,9 +45,9 @@
 <script>
 (function(){
   var BYTEBIN='https://bytebin.lucko.me/';
-  var COL={ MORT:'#ff5f5f', ARGENT:'#5fd75f', EVENT:'#ffcf5f', REMBOURSEMENT:'#b58cff',
-            PANNEAU:'#5fafff', CONNEXION:'#7a7f88', INVDEAD:'#ffa05f', MARKET:'#5fd7d7',
-            TROC:'#5fd7d7', PVP:'#ff8f8f', SANCTION:'#ff5f87' };
+  // Minimaliste : presque tout en violet terne ; seules les morts/sanctions ressortent (rouge terne).
+  var ACC='#8b82c9', RED='#c96a6a';
+  function catCol(c){ return (c==='MORT'||c==='SANCTION'||c==='TNT') ? RED : ACC; }
   var c=document.getElementById('c'), meta=document.getElementById('meta'), f=document.getElementById('f');
   var DATA=null;
 
@@ -80,7 +80,7 @@
     if(!rows.length){ c.innerHTML='<div class="info">— aucune ligne —</div>'; return; }
     var h='';
     for(var i=0;i<rows.length;i++){
-      var e=rows[i], col=COL[e.c]||'#9aa0aa';
+      var e=rows[i], col=catCol(e.c);
       h+='<div class="ln"><span class="t">['+stamp(e.t)+']</span> '
         +'<span class="cat" style="color:'+col+'">['+esc(e.c)+']</span> '
         +'<span class="who">'+esc(e.w)+'</span> '
