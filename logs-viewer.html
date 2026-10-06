@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Logs Emeria</title>
+<style>
+  :root{ --bg:#0c0b12; --panel:#15141d; --line:rgba(255,255,255,.08); --txt:#e9e8ef; --muted:#8e8a9c; --acc:#7c5cff; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; padding:24px 16px 60px; }
+  .wrap{ max-width:1000px; margin:0 auto; }
+  h1{ font-size:22px; font-weight:800; letter-spacing:.5px; }
+  h1 .e{ color:var(--acc); }
+  .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+  .bar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:18px 0 14px; }
+  input,select{ background:var(--panel); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:9px 12px; font:inherit; font-size:13.5px; outline:none; }
+  input:focus,select:focus{ border-color:var(--acc); }
+  input[type=search]{ flex:1; min-width:180px; }
+  .count{ color:var(--muted); font-size:12.5px; margin-left:auto; }
+  .list{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .row{ display:grid; grid-template-columns:78px 128px 150px 1fr; gap:12px; padding:9px 14px; border-top:1px solid var(--line); align-items:baseline; font-size:13.5px; }
+  .row:first-child{ border-top:0; }
+  .row:nth-child(even){ background:rgba(255,255,255,.015); }
+  .t{ color:var(--muted); font-variant-numeric:tabular-nums; font-size:12.5px; }
+  .cat{ font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; padding:2px 8px; border-radius:5px; display:inline-block; white-space:nowrap;
+        box-shadow:inset 1px 1px 0 rgba(255,255,255,.14), inset -1px -1px 0 rgba(0,0,0,.3); }
+  .who{ font-weight:700; }
+  .what{ color:#d7d4e2; overflow-wrap:anywhere; }
+  .empty,.err{ padding:40px 16px; text-align:center; color:var(--muted); }
+  .err{ color:#ff9b9b; }
+  @media(max-width:640px){ .row{ grid-template-columns:1fr; gap:3px; } .t{ order:-1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Logs <span class="e">Emeria</span></h1>
+  <div class="sub" id="sub">Chargement…</div>
+
+  <div class="bar" id="bar" hidden>
+    <select id="fcat"><option value="">Toutes les catégories</option></select>
+    <input id="fsearch" type="search" placeholder="Rechercher (joueur, texte…)" />
+    <span class="count" id="count"></span>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+(function(){
+  var BYTEBIN = 'https://bytebin.lucko.me/';
+  var CATCOL = {
+    MORT:'#e05a5a', ARGENT:'#3ba55d', EVENT:'#e0a52f', REMBOURSEMENT:'#7c5cff',
+    PANNEAU:'#4a86d8', CONNEXION:'#6b7280', INVDEAD:'#e07f2f', ARME:'#c04a4a'
+  };
+  var out=document.getElementById('out'), sub=document.getElementById('sub'),
+      bar=document.getElementById('bar'), fcat=document.getElementById('fcat'),
+      fsearch=document.getElementById('fsearch'), countEl=document.getElementById('count');
+  var DATA=null;
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function pad(n){ return (n<10?'0':'')+n; }
+  function hhmm(ms){ var d=new Date(ms); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+  function ddmm(ms){ var d=new Date(ms); return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+
+  var key=(location.hash||'').replace(/^#/,'').trim();
+  if(!key){ sub.textContent=''; out.innerHTML='<div class="err">Lien invalide (clé manquante). Refais /emerialogs en jeu.</div>'; return; }
+
+  fetch(BYTEBIN+encodeURIComponent(key))
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){ DATA=d; render(); })
+    .catch(function(e){ sub.textContent=''; out.innerHTML='<div class="err">Impossible de charger les logs ('+esc(e.message)+'). Le lien a peut-être expiré — refais /emerialogs.</div>'; });
+
+  function render(){
+    var entries=(DATA&&DATA.entries)||[];
+    entries.sort(function(a,b){ return b.t-a.t; }); // plus récent en haut
+    sub.innerHTML='Vu par <b>'+esc(DATA.viewer)+'</b> (niveau '+esc(DATA.level)+') · généré le '+ddmm(DATA.generated)+' '+hhmm(DATA.generated)+' · '+entries.length+' entrées';
+    // remplir les catégories
+    var cats={}; entries.forEach(function(e){ cats[e.c]=1; });
+    Object.keys(cats).sort().forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; fcat.appendChild(o); });
+    bar.hidden=false;
+    fcat.onchange=draw; fsearch.oninput=draw;
+    draw();
+  }
+
+  function draw(){
+    var entries=(DATA&&DATA.entries)||[];
+    var cat=fcat.value, q=fsearch.value.trim().toLowerCase();
+    var rows=entries.filter(function(e){
+      if(cat && e.c!==cat) return false;
+      if(q){ var hay=((e.w||'')+' '+(e.d||'')+' '+(e.c||'')).toLowerCase(); if(hay.indexOf(q)<0) return false; }
+      return true;
+    });
+    countEl.textContent=rows.length+' / '+entries.length;
+    if(!rows.length){ out.innerHTML='<div class="empty">Aucune ligne.</div>'; return; }
+    var h='<div class="list">';
+    rows.forEach(function(e){
+      var col=CATCOL[e.c]||'#555';
+      h+='<div class="row">'
+        +'<span class="t">'+ddmm(e.t)+' '+hhmm(e.t)+'</span>'
+        +'<span><span class="cat" style="background:'+col+';color:#fff">'+esc(e.c)+'</span></span>'
+        +'<span class="who">'+esc(e.w)+'</span>'
+        +'<span class="what">'+esc(e.d)+'</span>'
+        +'</div>';
+    });
+    h+='</div>';
+    out.innerHTML=h;
+  }
+
+  window.addEventListener('hashchange',function(){ location.reload(); });
+})();
+</script>
+</body>
+</html>
