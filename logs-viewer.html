@@ -3,107 +3,91 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Logs Emeria</title>
+<title>Console Emeria</title>
 <style>
-  :root{ --bg:#0c0b12; --panel:#15141d; --line:rgba(255,255,255,.08); --txt:#e9e8ef; --muted:#8e8a9c; --acc:#7c5cff; }
+  :root{ --bg:#0a0a0c; --fg:#cfd2d6; --dim:#6a6f78; --acc:#7c5cff; --line:#1c1d22; }
   *{ box-sizing:border-box; margin:0; padding:0; }
-  body{ font-family:'Sora',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; padding:24px 16px 60px; }
-  .wrap{ max-width:1000px; margin:0 auto; }
-  h1{ font-size:22px; font-weight:800; letter-spacing:.5px; }
-  h1 .e{ color:var(--acc); }
-  .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
-  .bar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:18px 0 14px; }
-  input,select{ background:var(--panel); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:9px 12px; font:inherit; font-size:13.5px; outline:none; }
-  input:focus,select:focus{ border-color:var(--acc); }
-  input[type=search]{ flex:1; min-width:180px; }
-  .count{ color:var(--muted); font-size:12.5px; margin-left:auto; }
-  .list{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-  .row{ display:grid; grid-template-columns:78px 128px 150px 1fr; gap:12px; padding:9px 14px; border-top:1px solid var(--line); align-items:baseline; font-size:13.5px; }
-  .row:first-child{ border-top:0; }
-  .row:nth-child(even){ background:rgba(255,255,255,.015); }
-  .t{ color:var(--muted); font-variant-numeric:tabular-nums; font-size:12.5px; }
-  .cat{ font-weight:700; font-size:11px; letter-spacing:.5px; text-transform:uppercase; padding:2px 8px; border-radius:5px; display:inline-block; white-space:nowrap;
-        box-shadow:inset 1px 1px 0 rgba(255,255,255,.14), inset -1px -1px 0 rgba(0,0,0,.3); }
-  .who{ font-weight:700; }
-  .what{ color:#d7d4e2; overflow-wrap:anywhere; }
-  .empty,.err{ padding:40px 16px; text-align:center; color:var(--muted); }
-  .err{ color:#ff9b9b; }
-  @media(max-width:640px){ .row{ grid-template-columns:1fr; gap:3px; } .t{ order:-1; } }
+  html,body{ height:100%; }
+  body{ background:var(--bg); color:var(--fg);
+        font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+        font-size:13px; line-height:1.55; display:flex; flex-direction:column; }
+  .top{ flex:0 0 auto; border-bottom:1px solid var(--line); padding:10px 14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; background:#0d0d10; }
+  .title{ font-weight:700; letter-spacing:.5px; color:#fff; }
+  .title b{ color:var(--acc); }
+  .meta{ color:var(--dim); font-size:12px; }
+  .prompt{ display:flex; align-items:center; gap:6px; margin-left:auto; }
+  .prompt span{ color:var(--acc); }
+  input{ background:#111217; border:1px solid var(--line); color:var(--fg); font:inherit;
+         padding:5px 9px; border-radius:4px; outline:none; width:230px; }
+  input:focus{ border-color:var(--acc); }
+  .console{ flex:1 1 auto; overflow-y:auto; padding:10px 14px 40px; white-space:pre-wrap; word-break:break-word; }
+  .ln{ padding:1px 0; }
+  .ln:hover{ background:rgba(255,255,255,.03); }
+  .t{ color:var(--dim); }
+  .cat{ font-weight:700; }
+  .who{ color:#e8e8ec; font-weight:600; }
+  .msg{ color:#b9bcc2; }
+  .info{ color:var(--dim); padding:14px; }
+  .err{ color:#ff6b6b; padding:14px; }
+  /* scrollbar discrète */
+  .console::-webkit-scrollbar{ width:10px; }
+  .console::-webkit-scrollbar-thumb{ background:#23242b; border-radius:6px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Logs <span class="e">Emeria</span></h1>
-  <div class="sub" id="sub">Chargement…</div>
-
-  <div class="bar" id="bar" hidden>
-    <select id="fcat"><option value="">Toutes les catégories</option></select>
-    <input id="fsearch" type="search" placeholder="Rechercher (joueur, texte…)" />
-    <span class="count" id="count"></span>
+  <div class="top">
+    <span class="title">EMERIA <b>CONSOLE</b></span>
+    <span class="meta" id="meta">chargement…</span>
+    <span class="prompt"><span>&gt;</span><input id="f" type="text" placeholder="filtrer (joueur, texte, CAT)" autocomplete="off" spellcheck="false" /></span>
   </div>
-
-  <div id="out"></div>
-</div>
+  <div class="console" id="c"><div class="info">Connexion au flux…</div></div>
 
 <script>
 (function(){
-  var BYTEBIN = 'https://bytebin.lucko.me/';
-  var CATCOL = {
-    MORT:'#e05a5a', ARGENT:'#3ba55d', EVENT:'#e0a52f', REMBOURSEMENT:'#7c5cff',
-    PANNEAU:'#4a86d8', CONNEXION:'#6b7280', INVDEAD:'#e07f2f', ARME:'#c04a4a'
-  };
-  var out=document.getElementById('out'), sub=document.getElementById('sub'),
-      bar=document.getElementById('bar'), fcat=document.getElementById('fcat'),
-      fsearch=document.getElementById('fsearch'), countEl=document.getElementById('count');
+  var BYTEBIN='https://bytebin.lucko.me/';
+  var COL={ MORT:'#ff5f5f', ARGENT:'#5fd75f', EVENT:'#ffcf5f', REMBOURSEMENT:'#b58cff',
+            PANNEAU:'#5fafff', CONNEXION:'#7a7f88', INVDEAD:'#ffa05f', MARKET:'#5fd7d7',
+            TROC:'#5fd7d7', PVP:'#ff8f8f', SANCTION:'#ff5f87' };
+  var c=document.getElementById('c'), meta=document.getElementById('meta'), f=document.getElementById('f');
   var DATA=null;
 
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
-  function pad(n){ return (n<10?'0':'')+n; }
-  function hhmm(ms){ var d=new Date(ms); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
-  function ddmm(ms){ var d=new Date(ms); return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(x){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[x];}); }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function stamp(ms){ var d=new Date(ms); return p2(d.getDate())+'/'+p2(d.getMonth()+1)+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds()); }
 
   var key=(location.hash||'').replace(/^#/,'').trim();
-  if(!key){ sub.textContent=''; out.innerHTML='<div class="err">Lien invalide (clé manquante). Refais /emerialogs en jeu.</div>'; return; }
+  if(!key){ c.innerHTML='<div class="err">Clé manquante. Refais /emerialogs en jeu.</div>'; meta.textContent=''; return; }
 
   fetch(BYTEBIN+encodeURIComponent(key))
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(function(d){ DATA=d; render(); })
-    .catch(function(e){ sub.textContent=''; out.innerHTML='<div class="err">Impossible de charger les logs ('+esc(e.message)+'). Le lien a peut-être expiré — refais /emerialogs.</div>'; });
+    .then(function(d){ DATA=d; init(); })
+    .catch(function(e){ meta.textContent=''; c.innerHTML='<div class="err">Lien expiré ou illisible ('+esc(e.message)+'). Refais /emerialogs.</div>'; });
 
-  function render(){
-    var entries=(DATA&&DATA.entries)||[];
-    entries.sort(function(a,b){ return b.t-a.t; }); // plus récent en haut
-    sub.innerHTML='Vu par <b>'+esc(DATA.viewer)+'</b> (niveau '+esc(DATA.level)+') · généré le '+ddmm(DATA.generated)+' '+hhmm(DATA.generated)+' · '+entries.length+' entrées';
-    // remplir les catégories
-    var cats={}; entries.forEach(function(e){ cats[e.c]=1; });
-    Object.keys(cats).sort().forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; fcat.appendChild(o); });
-    bar.hidden=false;
-    fcat.onchange=draw; fsearch.oninput=draw;
-    draw();
+  function init(){
+    var n=(DATA.entries||[]).length;
+    meta.textContent=DATA.viewer+' · niveau '+DATA.level+' · '+n+' lignes · '+stamp(DATA.generated);
+    (DATA.entries||[]).sort(function(a,b){ return a.t-b.t; }); // chronologique (console)
+    f.oninput=draw;
+    draw(true);
   }
 
-  function draw(){
-    var entries=(DATA&&DATA.entries)||[];
-    var cat=fcat.value, q=fsearch.value.trim().toLowerCase();
-    var rows=entries.filter(function(e){
-      if(cat && e.c!==cat) return false;
-      if(q){ var hay=((e.w||'')+' '+(e.d||'')+' '+(e.c||'')).toLowerCase(); if(hay.indexOf(q)<0) return false; }
-      return true;
+  function draw(scroll){
+    var q=f.value.trim().toLowerCase();
+    var rows=(DATA.entries||[]).filter(function(e){
+      if(!q) return true;
+      return (((e.w||'')+' '+(e.d||'')+' '+(e.c||'')).toLowerCase().indexOf(q)>=0);
     });
-    countEl.textContent=rows.length+' / '+entries.length;
-    if(!rows.length){ out.innerHTML='<div class="empty">Aucune ligne.</div>'; return; }
-    var h='<div class="list">';
-    rows.forEach(function(e){
-      var col=CATCOL[e.c]||'#555';
-      h+='<div class="row">'
-        +'<span class="t">'+ddmm(e.t)+' '+hhmm(e.t)+'</span>'
-        +'<span><span class="cat" style="background:'+col+';color:#fff">'+esc(e.c)+'</span></span>'
-        +'<span class="who">'+esc(e.w)+'</span>'
-        +'<span class="what">'+esc(e.d)+'</span>'
-        +'</div>';
-    });
-    h+='</div>';
-    out.innerHTML=h;
+    if(!rows.length){ c.innerHTML='<div class="info">— aucune ligne —</div>'; return; }
+    var h='';
+    for(var i=0;i<rows.length;i++){
+      var e=rows[i], col=COL[e.c]||'#9aa0aa';
+      h+='<div class="ln"><span class="t">['+stamp(e.t)+']</span> '
+        +'<span class="cat" style="color:'+col+'">['+esc(e.c)+']</span> '
+        +'<span class="who">'+esc(e.w)+'</span> '
+        +'<span class="msg">'+esc(e.d)+'</span></div>';
+    }
+    c.innerHTML=h;
+    if(scroll) c.scrollTop=c.scrollHeight; // tail : on va en bas (plus récent)
   }
 
   window.addEventListener('hashchange',function(){ location.reload(); });
