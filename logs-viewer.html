@@ -46,12 +46,13 @@
 (function(){
   var BYTEBIN='https://bytebin.lucko.me/';
   // Minimaliste : presque tout en violet terne ; seules les morts/sanctions ressortent (rouge terne).
-  var ACC='#8b82c9', RED='#c96a6a', GRAY='#6a6f78', AMB='#c9a86a';
+  var ACC='#8b82c9', RED='#c96a6a', GRAY='#6a6f78', AMB='#c9a86a', TEAL='#6fa8a8';
   var MSG={CHAT:1,MP:1,FS:1,FA:1,FC:1,R1:1,R2:1};
   function catCol(c){
     if(c==='MORT'||c==='SANCTION'||c==='TNT'||c==='BLOC') return RED;
     if(MSG[c]) return GRAY;
     if(c==='SERVEUR') return AMB;
+    if(c==='CMD') return TEAL;
     return ACC;
   }
   var c=document.getElementById('c'), meta=document.getElementById('meta'), f=document.getElementById('f');
