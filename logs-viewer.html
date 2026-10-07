@@ -27,6 +27,8 @@
   .cat{ font-weight:700; }
   .who{ color:#e8e8ec; font-weight:600; }
   .msg{ color:#b9bcc2; }
+  .mult{ color:#0c0b0d; background:#c9a86a; font-weight:700; font-size:11px; padding:0 6px; border-radius:4px; margin-left:4px;
+         box-shadow:inset 1px 1px 0 rgba(255,255,255,.3), inset -1px -1px 0 rgba(0,0,0,.3); }
   .info{ color:var(--dim); padding:14px; }
   .err{ color:#ff6b6b; padding:14px; }
   /* scrollbar discrète */
@@ -85,13 +87,21 @@
       return (((e.w||'')+' '+(e.d||'')+' '+(e.c||'')).toLowerCase().indexOf(q)>=0);
     });
     if(!rows.length){ c.innerHTML='<div class="info">— aucune ligne —</div>'; return; }
-    var h='';
+    // Regroupe les lignes IDENTIQUES consécutives (même cat+auteur+texte) -> une ligne avec xN (anti-flood).
+    var groups=[];
     for(var i=0;i<rows.length;i++){
-      var e=rows[i], col=catCol(e.c);
+      var e=rows[i], last=groups.length?groups[groups.length-1]:null;
+      if(last && last.c===e.c && last.w===e.w && last.d===e.d){ last.n++; last.t=e.t; }
+      else groups.push({t:e.t,c:e.c,w:e.w,d:e.d,n:1});
+    }
+    var h='';
+    for(var g=0;g<groups.length;g++){
+      var e=groups[g], col=catCol(e.c);
+      var mult=e.n>1?' <span class="mult">x'+e.n+'</span>':'';
       h+='<div class="ln"><span class="t">['+stamp(e.t)+']</span> '
         +'<span class="cat" style="color:'+col+'">['+esc(e.c)+']</span> '
         +'<span class="who">'+esc(e.w)+'</span> '
-        +'<span class="msg">'+esc(e.d)+'</span></div>';
+        +'<span class="msg">'+esc(e.d)+'</span>'+mult+'</div>';
     }
     c.innerHTML=h;
     if(scroll) c.scrollTop=c.scrollHeight; // tail : on va en bas (plus récent)
