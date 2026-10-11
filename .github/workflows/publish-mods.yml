@@ -52,6 +52,6 @@ jobs:
           json.dump(d,open(p,'w'),indent=2,ensure_ascii=False)
           print('URLs assainies:',n)
           PY
-          # 2) upload propre : jar au nom stable + manifest (avec l'entrée emeriacore)
-          gh release upload mods mods-manifest/emeriacore-1.0.0.jar mods-manifest/manifest.json --repo "$R" --clobber
-          echo "Publié : emeriacore-1.0.0.jar + manifest.json"
+          # 2) upload propre : jar au nom stable + resourcepacks suivis + manifest
+          gh release upload mods mods-manifest/emeriacore-1.0.0.jar mods-manifest/EmeriaBadges.zip mods-manifest/manifest.json --repo "$R" --clobber
+          echo "Publié : emeriacore-1.0.0.jar + EmeriaBadges.zip + manifest.json"
