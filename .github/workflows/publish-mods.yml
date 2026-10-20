@@ -39,16 +39,36 @@ jobs:
               emeriacore*.jar) echo "supprime $a"; gh release delete-asset mods "$a" --repo "$R" --yes || true ;;
             esac
           done
+          # 1ter) récupère le manifeste LIVE de la release AVANT de le réécrire :
+          # le panel xo est MAITRE des listes staff (comAllowed / axiomAllowed).
+          # On les préservera pour qu'un push git ne remette JAMAIS le staff à zéro.
+          mkdir -p /tmp/live
+          gh release download mods --repo "$R" --pattern manifest.json --dir /tmp/live --clobber || true
           # 1bis) garde-fou : GitHub remplace le "+" des noms d'assets par ".".
           # On aligne donc les URLs du manifeste (+ -> .) pour éviter les 404 de download.
+          # + on réinjecte comAllowed/axiomAllowed depuis la release live (staff géré par le panel).
           python3 - <<'PY'
-          import json
+          import json, os
           p='mods-manifest/manifest.json'
           d=json.load(open(p)); n=0
           for k in ('mods','resourcepacks','optional'):
               for m in d.get(k,[]) or []:
                   if isinstance(m,dict) and '+' in m.get('url',''):
                       m['url']=m['url'].replace('+','.'); n+=1
+          lp='/tmp/live/manifest.json'
+          if os.path.exists(lp):
+              try:
+                  live=json.load(open(lp))
+                  for k in ('comAllowed','axiomAllowed'):
+                      v=live.get(k)
+                      if isinstance(v,list):
+                          d[k]=v
+                  print('staff préservé depuis la release: com=%d axiom=%d'
+                        % (len(d.get('comAllowed',[])), len(d.get('axiomAllowed',[]))))
+              except Exception as e:
+                  print('manifeste live illisible -> staff non modifié:', e)
+          else:
+              print('pas de manifeste live -> staff non modifié')
           json.dump(d,open(p,'w'),indent=2,ensure_ascii=False)
           print('URLs assainies:',n)
           PY

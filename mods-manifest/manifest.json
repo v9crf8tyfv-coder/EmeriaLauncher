@@ -199,8 +199,8 @@
     {
       "name": "emeriacore-1.0.0.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "9d00153418917e847e3c8143873be3c7e54b47fcf1c9d8a7876d8e87752a1fda",
-      "size": 827152
+      "sha256": "444978f880a18680a5d4b5ea13a7d7f8aa3241b7f22a0c6922ed3d1d59c1e25a",
+      "size": 922555
     }
   ],
   "resourcepacks": [
@@ -234,9 +234,5 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Axiom-5.4.2-for-MC1.21.1.jar",
       "id": "axiom"
     }
-  ],
-  "axiomAllowed": [
-    "Xtazzking",
-    "Orionyx84"
   ]
 }
