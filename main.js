@@ -225,13 +225,22 @@ function setupAutoUpdate() {
 
 // ---- Tête Minecraft (data URL, pour respecter le CSP) ----
 async function fetchHead(uuid) {
-  try {
-    const res = await fetch(`https://mc-heads.net/avatar/${uuid}/64.png`);
-    const buf = Buffer.from(await res.arrayBuffer());
-    return `data:image/png;base64,${buf.toString('base64')}`;
-  } catch {
-    return null;
+  // crafthead = fiable (vrai skin) ; repli mc-heads / minotar si indispo.
+  const sources = [
+    `https://crafthead.net/avatar/${uuid}/64`,
+    `https://mc-heads.net/avatar/${uuid}/64.png`,
+    `https://minotar.net/avatar/${uuid}/64.png`,
+  ];
+  for (const url of sources) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length < 100) continue; // réponse vide/placeholder -> source suivante
+      return `data:image/png;base64,${buf.toString('base64')}`;
+    } catch { /* source suivante */ }
   }
+  return null;
 }
 
 // ---- Connexion Microsoft ----
