@@ -199,8 +199,8 @@
     {
       "name": "emeriacore-1.0.0.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "84344b3f24d7fdd8d4c151dd8dc85d1fc37bcbe36bce77ed7bfccc89ba475f7e",
-      "size": 935084
+      "sha256": "e64ad385f5a49e3e24c1c7e1de03a96a629ededb742c973c978c001a9d21c7aa",
+      "size": 936141
     }
   ],
   "resourcepacks": [
@@ -216,8 +216,8 @@
     },
     {
       "name": "EmeriaBadges.zip",
-      "sha256": "6aab36061a183ad2141aa1e8f02465e7643ba97b4173b8900d823c9860ac9056",
-      "size": 35621,
+      "sha256": "761a103dd93966b4404dc54407c3c50d9a6e165d07c305c20e784b2040f0e72b",
+      "size": 35631,
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/EmeriaBadges.zip"
     },
     {
