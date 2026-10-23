@@ -52,7 +52,7 @@
   function catCol(c){
     if(c==='MORT'||c==='SANCTION'||c==='TNT'||c==='BLOC') return RED;
     if(MSG[c]) return GRAY;
-    if(c==='SERVEUR') return AMB;
+    if(c==='SERVEUR'||c==='AUTOMSG') return AMB;
     if(c==='CMD') return TEAL;
     return ACC;
   }
