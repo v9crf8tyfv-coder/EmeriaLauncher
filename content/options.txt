@@ -48,7 +48,7 @@ mouseSensitivity:0.4507042253521127
 damageTiltStrength:1.0
 highContrast:false
 narratorHotkey:true
-resourcePacks:["vanilla","fabric","vanillabackport:freshly_animated","vanillabackport:freshly_animated_legacy","file/EvenBetterEnchants_v2_r1.zip","file/EmeriaBadges.zip","file/EmeriaPancarte.zip","file/White Block Selection Outline.zip","file/§b§lSpectator Xray §7v1.2.1.zip"]
+resourcePacks:["vanilla","fabric","vanillabackport:freshly_animated","vanillabackport:freshly_animated_legacy","file/EvenBetterEnchants_v2_r1.zip","file/EmeriaBadges.zip","file/EmeriaPancarte.zip","file/EmeriaItems.zip","file/White Block Selection Outline.zip","file/§b§lSpectator Xray §7v1.2.1.zip"]
 incompatibleResourcePacks:["ambientenvironment","collective","easy_npc","easy_npc_config_ui","jade","starterkit","xaerolib","xaerominimap","xaeroworldmap","yet_another_config_lib_v3"]
 lastServer:
 lang:en_us

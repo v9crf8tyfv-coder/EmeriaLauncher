@@ -144,6 +144,9 @@ async function syncResourcepacksFromManifest(root, onProgress) {
       if (onProgress) onProgress(m.name, i, wanted.length);
       await downloadTo(m.url, dest);
     }
+    // Active automatiquement CHAQUE resourcepack du manifest dans options.txt
+    // (évite qu'un nouveau pack, ex. EmeriaItems, soit téléchargé mais pas appliqué).
+    ensureResourcePackEnabled(root, m.name);
     i++;
   }
 }
