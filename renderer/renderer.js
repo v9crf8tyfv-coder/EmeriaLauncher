@@ -20,8 +20,6 @@ const shaderToggle = document.getElementById('shader-toggle');
 const accountMenu = document.getElementById('account-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const updateBtn = document.getElementById('update-btn');
-const catAxiom = document.getElementById('cat-axiom');
-const axiomToggle = document.getElementById('axiom-toggle');
 const catCom = document.getElementById('cat-com');
 const comToggle = document.getElementById('com-toggle');
 const catBuild = document.getElementById('cat-build');
@@ -162,9 +160,6 @@ async function loadSettings() {
       : `Max détecté sur ton PC : ${s.maxRam} Go`;
   }
   shaderToggle.checked = s.shaderEnabled;
-  // Axiom : onglet visible seulement pour le staff build autorisé
-  if (catAxiom) catAxiom.hidden = !s.canUseAxiom;
-  if (axiomToggle) axiomToggle.checked = !!s.axiomEnabled;
   // Com : onglet visible seulement pour les autorisés Com
   if (catCom) catCom.hidden = !s.canUseCom;
   if (comToggle) comToggle.checked = !!s.comEnabled;
@@ -178,7 +173,6 @@ async function loadSettings() {
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
 }
 shaderToggle.addEventListener('change', () => window.api.setShader(shaderToggle.checked));
-if (axiomToggle) axiomToggle.addEventListener('change', () => window.api.setAxiom(axiomToggle.checked));
 if (comToggle) comToggle.addEventListener('change', () => window.api.setCom(comToggle.checked));
 function renderList(el, items, emptyMsg) {
   el.innerHTML = '';

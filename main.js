@@ -123,23 +123,18 @@ function setOptEnabled(id, v) {
   store.set('optEnabled', map);
 }
 // Un mod optionnel doit-il être installé pour ce compte ? (catégorie autorisée ET activé)
+// L'Axiom legacy (category absente/'axiom') est traité comme un mod Build.
 function wantOptional(o) {
-  const cat = (o && o.category) || 'axiom';
-  if (cat === 'build') return canUseBuild() && optEnabled(o.id);
+  const cat = (o && o.category) || 'build';
   if (cat === 'com') return canUseCom() && optEnabled(o.id);
-  // axiom (legacy) : garde le toggle global axiomEnabled
-  return canUseAxiom() && store.get('axiomEnabled', true);
+  return canUseBuild() && optEnabled(o.id); // build + axiom/legacy
 }
 // Mods optionnels visibles pour ce compte (pour l'UI), avec leur état activé.
+// Axiom/legacy est normalisé en 'build' pour s'afficher dans l'onglet Build.
 function visibleOptional() {
   return optionalList
-    .filter((o) => {
-      const cat = o.category || 'axiom';
-      if (cat === 'build') return canUseBuild();
-      if (cat === 'com') return canUseCom();
-      return false; // axiom a déjà son propre onglet dédié
-    })
-    .map((o) => ({ id: o.id, name: o.name, category: o.category || 'axiom', enabled: optEnabled(o.id) }));
+    .filter((o) => (o.category === 'com' ? canUseCom() : canUseBuild()))
+    .map((o) => ({ id: o.id, name: o.name, category: o.category === 'com' ? 'com' : 'build', enabled: optEnabled(o.id) }));
 }
 
 // Liste des mods affichée dans le launcher. Par défaut = liste embarquée (content.js),
