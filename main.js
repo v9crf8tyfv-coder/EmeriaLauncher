@@ -35,11 +35,13 @@ const {
   syncResourcepacksFromManifest,
   getAxiomAllowed,
   getComAllowed,
+  getBuildAllowed,
   getManifestDisplayLists,
+  getOptionalList,
   installConfigs,
   ensureResourcePackEnabled,
   setShaderEnabled,
-  setAxiomInstalled,
+  setOptionalInstalled,
 } = require('./src/install');
 const { ensureJava } = require('./src/java');
 const store = require('./src/store');
@@ -87,6 +89,57 @@ async function refreshComAllowed() {
 }
 function canUseCom() {
   return !!(mcToken && COM_ALLOWED.includes(String(mcToken.name).toLowerCase()));
+}
+
+// Comptes autorisés aux mods Build du launcher (ajouts du panel, manifeste buildAllowed).
+let BUILD_ALLOWED = [];
+async function refreshBuildAllowed() {
+  try {
+    const list = await getBuildAllowed();
+    if (list) BUILD_ALLOWED = list;
+  } catch { /* garde la liste courante */ }
+}
+function canUseBuild() {
+  return !!(mcToken && BUILD_ALLOWED.includes(String(mcToken.name).toLowerCase()));
+}
+
+// Liste des mods optionnels togglables (depuis le manifeste) : [{ id, name, category }].
+let optionalList = [];
+async function refreshOptionalList() {
+  try {
+    const list = await getOptionalList();
+    if (list) optionalList = list;
+  } catch { /* garde la liste courante */ }
+}
+
+// Activation par mod optionnel (case à cocher du launcher), persistée. Défaut : activé.
+function optEnabled(id) {
+  const map = store.get('optEnabled', {});
+  return map[id] !== false;
+}
+function setOptEnabled(id, v) {
+  const map = store.get('optEnabled', {});
+  map[id] = !!v;
+  store.set('optEnabled', map);
+}
+// Un mod optionnel doit-il être installé pour ce compte ? (catégorie autorisée ET activé)
+function wantOptional(o) {
+  const cat = (o && o.category) || 'axiom';
+  if (cat === 'build') return canUseBuild() && optEnabled(o.id);
+  if (cat === 'com') return canUseCom() && optEnabled(o.id);
+  // axiom (legacy) : garde le toggle global axiomEnabled
+  return canUseAxiom() && store.get('axiomEnabled', true);
+}
+// Mods optionnels visibles pour ce compte (pour l'UI), avec leur état activé.
+function visibleOptional() {
+  return optionalList
+    .filter((o) => {
+      const cat = o.category || 'axiom';
+      if (cat === 'build') return canUseBuild();
+      if (cat === 'com') return canUseCom();
+      return false; // axiom a déjà son propre onglet dédié
+    })
+    .map((o) => ({ id: o.id, name: o.name, category: o.category || 'axiom', enabled: optEnabled(o.id) }));
 }
 
 // Liste des mods affichée dans le launcher. Par défaut = liste embarquée (content.js),
@@ -148,6 +201,8 @@ app.whenReady().then(() => {
   if (app.isPackaged) setupAutoUpdate(); // auto-update seulement en version installée
   void refreshAxiomAllowed(); // met à jour la liste Axiom depuis le manifeste (panel)
   void refreshComAllowed();   // met à jour la liste Com depuis le manifeste (panel)
+  void refreshBuildAllowed(); // met à jour la liste Build depuis le manifeste (panel)
+  void refreshOptionalList(); // met à jour la liste des mods optionnels togglables (panel)
   void refreshDisplayMods();  // met à jour la liste des mods affichée depuis le manifeste (panel)
   mainWindow.webContents.once('did-finish-load', trySilentLogin);
 });
@@ -295,12 +350,16 @@ ipcMain.handle('getSettings', () => {
     axiomEnabled: store.get('axiomEnabled', true),
     canUseCom: canUseCom(),                   // catégorie Com visible seulement pour les autorisés
     comEnabled: store.get('comEnabled', true),
+    canUseBuild: canUseBuild(),               // onglet Build visible seulement pour le staff build autorisé
+    optionalMods: visibleOptional(),          // mods togglables (Build/Com) visibles pour ce compte
     ip: SERVER_IP,
   };
 });
 ipcMain.handle('setShader', (_e, v) => store.set('shaderEnabled', !!v));
 ipcMain.handle('setAxiom', (_e, v) => store.set('axiomEnabled', !!v));
 ipcMain.handle('setCom', (_e, v) => store.set('comEnabled', !!v));
+// Active/désactive un mod optionnel (Build/Com) par son id (case à cocher du launcher).
+ipcMain.handle('setOptional', (_e, id, v) => { if (id) setOptEnabled(String(id), !!v); });
 // Bouton "Mettre à jour" (Mac non signé) : télécharge le bon installeur
 ipcMain.handle('downloadUpdate', () => {
   const asset = process.platform === 'darwin' ? 'EmeriaMC-mac.dmg' : 'EmeriaMC-windows.exe';
@@ -384,9 +443,11 @@ ipcMain.handle('launch', async () => {
   ensureResourcePackEnabled(MC_ROOT, 'EmeriaBadges.zip');
   // Pancarte Emeria : modèle 3D de l'item (custom_model_data) — forcé actif à chaque lancement.
   ensureResourcePackEnabled(MC_ROOT, 'EmeriaPancarte.zip');
-  // Axiom : installé seulement si compte autorisé ET activé dans les réglages
-  await setAxiomInstalled(MC_ROOT, canUseAxiom() && store.get('axiomEnabled', true), () =>
-    send('status', 'Téléchargement d\'Axiom…'),
+  // Mods optionnels togglables (Axiom legacy + Build + Com) : installés seulement si la
+  // catégorie est autorisée pour ce compte ET que le joueur les a activés (case cochée).
+  await refreshOptionalList(); // s'assure que l'UI reflète le manifeste au prochain getState
+  await setOptionalInstalled(MC_ROOT, wantOptional, (label) =>
+    send('status', 'Téléchargement du mod : ' + label),
   );
   setShaderEnabled(MC_ROOT, store.get('shaderEnabled', true)); // toggle shaders
   logger.log('mods synced');

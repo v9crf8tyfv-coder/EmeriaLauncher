@@ -24,6 +24,9 @@ const catAxiom = document.getElementById('cat-axiom');
 const axiomToggle = document.getElementById('axiom-toggle');
 const catCom = document.getElementById('cat-com');
 const comToggle = document.getElementById('com-toggle');
+const catBuild = document.getElementById('cat-build');
+const buildMods = document.getElementById('build-mods');
+const comMods = document.getElementById('com-mods');
 
 let connected = false;
 
@@ -165,6 +168,12 @@ async function loadSettings() {
   // Com : onglet visible seulement pour les autorisés Com
   if (catCom) catCom.hidden = !s.canUseCom;
   if (comToggle) comToggle.checked = !!s.comEnabled;
+  // Build : onglet visible seulement pour le staff build autorisé
+  if (catBuild) catBuild.hidden = !s.canUseBuild;
+  // Mods optionnels togglables (une case par mod), répartis par catégorie.
+  const opt = Array.isArray(s.optionalMods) ? s.optionalMods : [];
+  if (buildMods) renderOptional(buildMods, opt.filter((m) => m.category === 'build'), 'Aucun mod Build.');
+  if (comMods) renderOptional(comMods, opt.filter((m) => m.category === 'com'), 'Aucun mod Com.');
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
 }
@@ -185,6 +194,30 @@ function renderList(el, items, emptyMsg) {
     d.className = 'item';
     d.textContent = it.name;
     el.appendChild(d);
+  }
+}
+/** Rend une case à cocher par mod optionnel ; change -> window.api.setOptional(id, coché). */
+function renderOptional(el, items, emptyMsg) {
+  el.innerHTML = '';
+  if (!items || items.length === 0) {
+    const d = document.createElement('div');
+    d.className = 'empty';
+    d.textContent = emptyMsg;
+    el.appendChild(d);
+    return;
+  }
+  for (const it of items) {
+    const row = document.createElement('label');
+    row.className = 'toggle-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = it.enabled !== false;
+    cb.addEventListener('change', () => window.api.setOptional(it.id, cb.checked));
+    const span = document.createElement('span');
+    span.textContent = it.name;
+    row.appendChild(cb);
+    row.appendChild(span);
+    el.appendChild(row);
   }
 }
 settingsBtn.addEventListener('click', async () => {

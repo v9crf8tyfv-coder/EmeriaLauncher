@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   setShader: (v) => ipcRenderer.invoke('setShader', v),
   setAxiom: (v) => ipcRenderer.invoke('setAxiom', v),
   setCom: (v) => ipcRenderer.invoke('setCom', v),
+  setOptional: (id, v) => ipcRenderer.invoke('setOptional', id, v),
   downloadUpdate: () => ipcRenderer.invoke('downloadUpdate'),
   copyIp: () => ipcRenderer.invoke('copyIp'),
   sendLogs: () => ipcRenderer.invoke('sendLogs'),

@@ -123,6 +123,25 @@ async function getComAllowed() {
   }
 }
 
+/** Pseudos (minuscules) autorisés aux mods Build du launcher. null si indispo.
+ *  Même source que Axiom (endpoint du panel), champ `build` ; repli manifeste buildAllowed. */
+async function getBuildAllowed() {
+  try {
+    const r = await fetch(AXIOM_PANEL_URL + '?t=' + Date.now());
+    if (r.ok) {
+      const d = await r.json();
+      if (Array.isArray(d.build)) return d.build.map((s) => String(s).toLowerCase());
+    }
+  } catch { /* panel indispo -> repli manifeste */ }
+  try {
+    const manifest = await fetchManifest();
+    const list = Array.isArray(manifest.buildAllowed) ? manifest.buildAllowed : null;
+    return list ? list.map((s) => String(s).toLowerCase()) : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Synchronise les resourcepacks depuis le manifeste (ajout / mise à jour seulement).
  * Ne supprime PAS les packs fournis avec le launcher (ex : Better Leaves).
@@ -406,6 +425,44 @@ async function setAxiomInstalled(root, enabled, onProgress) {
   }
 }
 
+/** Retire de mods/ le fichier `name` et ses variantes de version (même base avant le -<num>). */
+function removeModByBase(dir, name) {
+  const base = (String(name).match(/^(.*?)-v?\d/i) || [])[1] || String(name).replace(/\.jar$/i, '');
+  const esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('^' + esc + '(-v?\\d.*)?\\.jar$', 'i');
+  for (const f of fs.readdirSync(dir)) {
+    if (f.endsWith('.jar') && re.test(f)) {
+      try { fs.unlinkSync(path.join(dir, f)); } catch { /* ignore */ }
+    }
+  }
+}
+
+/**
+ * Mods OPTIONNELS togglables (Axiom / Build / Com). Pour CHAQUE mod optionnel du manifeste,
+ * `decide(entry)` dit s'il doit être présent (catégorie autorisée pour ce compte ET activé par
+ * le joueur). Présent = téléchargé dans mods/ (si manquant ou hash différent) ; sinon retiré.
+ */
+async function setOptionalInstalled(root, decide, onProgress) {
+  const to = path.join(root, 'mods');
+  fs.mkdirSync(to, { recursive: true });
+  let manifest;
+  try { manifest = await fetchManifest(); } catch { return; }
+  const optional = Array.isArray(manifest.optional) ? manifest.optional : [];
+  for (const o of optional) {
+    if (!o || !o.name) continue;
+    const dest = path.join(to, o.name);
+    let want = false;
+    try { want = !!decide(o); } catch { want = false; }
+    if (!want) { removeModByBase(to, o.name); continue; }
+    try {
+      if (fs.existsSync(dest) && sha256File(dest) === o.sha256) continue; // déjà à jour
+      removeModByBase(to, o.name); // nettoie les anciennes versions
+      if (onProgress) onProgress(prettyModName(o.name));
+      await downloadTo(o.url, dest);
+    } catch { /* réseau indispo -> ce mod non installé cette fois */ }
+  }
+}
+
 /**
  * Transforme un nom de fichier de mod en nom propre pour l'affichage.
  * Ex : "votelistener-1.1.0+1.21.jar" -> "Votelistener"
@@ -451,17 +508,36 @@ async function getManifestDisplayLists() {
   }
 }
 
+/**
+ * Liste des mods OPTIONNELS togglables depuis le manifeste : [{ id, name (joli), category }].
+ * Sert au launcher à afficher une case à cocher par mod. null si manifeste indisponible.
+ */
+async function getOptionalList() {
+  try {
+    const manifest = await fetchManifest();
+    const arr = Array.isArray(manifest.optional) ? manifest.optional : [];
+    return arr
+      .filter((o) => o && o.id && o.name)
+      .map((o) => ({ id: o.id, name: prettyModName(o.name), category: o.category || 'axiom' }));
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
   syncMods,
   syncModsFromManifest,
   syncResourcepacksFromManifest,
   getAxiomAllowed,
   getComAllowed,
+  getBuildAllowed,
   getManifestDisplayLists,
+  getOptionalList,
   prettyModName,
   installConfigs,
   ensureResourcePackEnabled,
   patchShaderForMac,
   setShaderEnabled,
   setAxiomInstalled,
+  setOptionalInstalled,
 };
