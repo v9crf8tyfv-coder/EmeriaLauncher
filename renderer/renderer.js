@@ -202,7 +202,7 @@ function renderOptional(el, items, emptyMsg) {
   }
   for (const it of items) {
     const row = document.createElement('label');
-    row.className = 'toggle-row';
+    row.className = 'opt-row';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.checked = it.enabled !== false;
