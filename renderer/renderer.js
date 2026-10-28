@@ -95,6 +95,7 @@ document.addEventListener('click', (e) => {
 // Lancer -> JEU EN COURS
 playBtn.addEventListener('click', async () => {
   playBtn.disabled = true;
+  logoutBtn.disabled = true; // interdit la déconnexion tant qu'une partie tourne
   setPlay('jeu-en-cours');
   statusEl.textContent = 'Démarrage…';
   try {
@@ -104,6 +105,7 @@ playBtn.addEventListener('click', async () => {
     statusEl.textContent = 'Erreur : ' + (e?.message || e);
     setPlay('jouer');
     playBtn.disabled = false;
+    logoutBtn.disabled = false; // échec du lancement -> on réautorise la déconnexion
   }
 });
 
@@ -112,6 +114,7 @@ window.api.onClosed(() => {
   statusEl.textContent = connected ? 'Prêt à jouer' : 'Connecte-toi pour jouer';
   setPlay('jouer');
   playBtn.disabled = !connected;
+  logoutBtn.disabled = false; // partie finie -> on peut se déconnecter à nouveau
 });
 
 // Statut / progression / maj
