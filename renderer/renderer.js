@@ -266,3 +266,17 @@ window.api.getVersion().then((v) => {
 }).catch(() => {});
 
 loadSettings();
+
+/* Maintenance : synchro avec le site (/api/status). Bandeau orange quand maintenance ON.
+   Cache 30s côté site -> léger pour Vercel ; vérif au lancement + toutes les 2 min. */
+function checkMaintenance() {
+  fetch('https://emeria-site.vercel.app/api/status', { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var b = document.getElementById('maint-banner');
+      if (b) b.hidden = !(d && d.maintenance);
+    })
+    .catch(function () { /* hors-ligne : on n'affiche rien */ });
+}
+checkMaintenance();
+setInterval(checkMaintenance, 120000);

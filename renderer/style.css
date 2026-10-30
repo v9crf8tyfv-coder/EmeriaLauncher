@@ -493,3 +493,25 @@ input[type='range'] {
 .update-btn:active {
   transform: translateY(3px) scale(0.97);
 }
+
+/* Bandeau maintenance (synchro avec le site via /api/status) */
+.maint-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px auto 0;
+  padding: 6px 14px;
+  border-radius: 3px;
+  background: rgba(232, 116, 12, 0.14);
+  border: 1px solid rgba(232, 116, 12, 0.5);
+  color: #ffae5c;
+  font-size: 13px;
+  font-weight: 700;
+}
+.maint-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e8740c;
+  box-shadow: 0 0 0 4px rgba(232, 116, 12, 0.22);
+}
