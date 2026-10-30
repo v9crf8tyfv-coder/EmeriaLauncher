@@ -27,6 +27,22 @@ const buildMods = document.getElementById('build-mods');
 const comMods = document.getElementById('com-mods');
 
 let connected = false;
+let maintActive = false;   // /maintenance ON (lu depuis le site)
+let maintBypass = false;   // staff (Axiom/Build/Com/fonda) : peut lancer même en maintenance
+let playing = false;       // une partie est en cours
+
+// Bloque le lancement pendant la maintenance (sauf staff). Met à jour le bouton + le statut.
+function applyMaint() {
+  const blocked = maintActive && !maintBypass;
+  if (blocked) {
+    playBtn.disabled = true;
+    if (!playing) statusEl.textContent = 'Maintenance en cours — réessaie plus tard.';
+  } else if (!playing) {
+    // Fin de maintenance (ou staff) : on réautorise si connecté.
+    playBtn.disabled = !connected;
+    if (connected) statusEl.textContent = 'Prêt à jouer';
+  }
+}
 
 function setConnected(name, head) {
   connected = true;
@@ -38,6 +54,7 @@ function setConnected(name, head) {
   }
   playBtn.disabled = false;
   statusEl.textContent = 'Prêt à jouer';
+  applyMaint(); // re-bloque si on est en maintenance (sauf staff)
 }
 
 function setDisconnected() {
@@ -94,8 +111,10 @@ document.addEventListener('click', (e) => {
 
 // Lancer -> JEU EN COURS
 playBtn.addEventListener('click', async () => {
+  if (maintActive && !maintBypass) { statusEl.textContent = 'Serveur en maintenance — réessaie plus tard.'; return; }
   playBtn.disabled = true;
   logoutBtn.disabled = true; // interdit la déconnexion tant qu'une partie tourne
+  playing = true;
   setPlay('jeu-en-cours');
   statusEl.textContent = 'Démarrage…';
   try {
@@ -104,8 +123,10 @@ playBtn.addEventListener('click', async () => {
   } catch (e) {
     statusEl.textContent = 'Erreur : ' + (e?.message || e);
     setPlay('jouer');
+    playing = false;
     playBtn.disabled = false;
     logoutBtn.disabled = false; // échec du lancement -> on réautorise la déconnexion
+    applyMaint();
   }
 });
 
@@ -113,8 +134,10 @@ playBtn.addEventListener('click', async () => {
 window.api.onClosed(() => {
   statusEl.textContent = connected ? 'Prêt à jouer' : 'Connecte-toi pour jouer';
   setPlay('jouer');
+  playing = false;
   playBtn.disabled = !connected;
   logoutBtn.disabled = false; // partie finie -> on peut se déconnecter à nouveau
+  applyMaint();
 });
 
 // Statut / progression / maj
@@ -168,6 +191,9 @@ async function loadSettings() {
   if (comToggle) comToggle.checked = !!s.comEnabled;
   // Build : onglet visible seulement pour le staff build autorisé
   if (catBuild) catBuild.hidden = !s.canUseBuild;
+  // Le staff (Axiom/Build/Com — inclut les fonda) peut lancer même en maintenance.
+  maintBypass = !!(s.canUseAxiom || s.canUseCom || s.canUseBuild);
+  applyMaint();
   // Mods optionnels togglables (une case par mod), répartis par catégorie.
   const opt = Array.isArray(s.optionalMods) ? s.optionalMods : [];
   if (buildMods) renderOptional(buildMods, opt.filter((m) => m.category === 'build'), 'Aucun mod Build.');
@@ -273,8 +299,10 @@ function checkMaintenance() {
   fetch('https://emeria-site.vercel.app/api/status', { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {
+      maintActive = !!(d && d.maintenance);
       var b = document.getElementById('maint-banner');
-      if (b) b.hidden = !(d && d.maintenance);
+      if (b) b.hidden = !maintActive;
+      applyMaint();
     })
     .catch(function () { /* hors-ligne : on n'affiche rien */ });
 }
