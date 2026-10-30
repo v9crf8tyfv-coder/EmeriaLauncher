@@ -27,8 +27,9 @@ const buildMods = document.getElementById('build-mods');
 const comMods = document.getElementById('com-mods');
 
 let connected = false;
+let currentName = '';      // pseudo MC connecté (pour vérifier le bypass staff en maintenance)
 let maintActive = false;   // /maintenance ON (lu depuis le site)
-let maintBypass = false;   // staff (Axiom/Build/Com/fonda) : peut lancer même en maintenance
+let maintBypass = false;   // Super-Modo et + (via carte staff) OU fonda : peut lancer en maintenance
 let playing = false;       // une partie est en cours
 
 // Bloque le lancement pendant la maintenance (sauf staff). Met à jour le bouton + le statut.
@@ -46,6 +47,7 @@ function applyMaint() {
 
 function setConnected(name, head) {
   connected = true;
+  currentName = name || '';
   loginBtn.classList.add('connected');
   loginLabel.textContent = name;
   if (head) {
@@ -54,10 +56,11 @@ function setConnected(name, head) {
   }
   playBtn.disabled = false;
   statusEl.textContent = 'Prêt à jouer';
-  applyMaint(); // re-bloque si on est en maintenance (sauf staff)
+  checkMaintenance(); // re-vérifie la maintenance + le bypass pour ce pseudo
 }
 
 function setDisconnected() {
+  currentName = '';
   connected = false;
   loginBtn.classList.remove('connected');
   loginLabel.textContent = 'Se connecter';
@@ -191,9 +194,6 @@ async function loadSettings() {
   if (comToggle) comToggle.checked = !!s.comEnabled;
   // Build : onglet visible seulement pour le staff build autorisé
   if (catBuild) catBuild.hidden = !s.canUseBuild;
-  // Le staff (Axiom/Build/Com — inclut les fonda) peut lancer même en maintenance.
-  maintBypass = !!(s.canUseAxiom || s.canUseCom || s.canUseBuild);
-  applyMaint();
   // Mods optionnels togglables (une case par mod), répartis par catégorie.
   const opt = Array.isArray(s.optionalMods) ? s.optionalMods : [];
   if (buildMods) renderOptional(buildMods, opt.filter((m) => m.category === 'build'), 'Aucun mod Build.');
@@ -296,10 +296,13 @@ loadSettings();
 /* Maintenance : synchro avec le site (/api/status). Bandeau orange quand maintenance ON.
    Cache 30s côté site -> léger pour Vercel ; vérif au lancement + toutes les 2 min. */
 function checkMaintenance() {
-  fetch('https://emeria-site.vercel.app/api/status', { cache: 'no-store' })
+  var url = 'https://emeria-site.vercel.app/api/status';
+  if (currentName) url += '?staff=' + encodeURIComponent(currentName);
+  fetch(url, { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {
       maintActive = !!(d && d.maintenance);
+      maintBypass = !!(d && d.staffBypass); // Super-Modo et + (carte staff) ou fonda
       var b = document.getElementById('maint-banner');
       if (b) b.hidden = !maintActive;
       applyMaint();
