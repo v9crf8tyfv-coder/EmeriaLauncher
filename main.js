@@ -295,29 +295,46 @@ async function fetchHead(uuid) {
 
 // ---- Connexion Microsoft ----
 ipcMain.handle('login', async () => {
-  const xbox = await authManager.launch('electron');
-  store.set('session', xbox.save()); // pour rester connecté
-  const mc = await xbox.getMinecraft();
-  mcToken = mc.mclc();
-  logger.log('login ok', mcToken.name);
-  return { name: mcToken.name, head: await fetchHead(mcToken.uuid) };
+  try {
+    const xbox = await authManager.launch('electron');
+    store.set('session', xbox.save()); // pour rester connecté
+    const mc = await xbox.getMinecraft();
+    mcToken = mc.mclc();
+    logger.log('login ok', mcToken.name);
+    return { name: mcToken.name, head: await fetchHead(mcToken.uuid) };
+  } catch (e) {
+    // msmc renvoie souvent un objet (pas une Error) -> l'IPC afficherait « [object Object] ».
+    // On journalise le détail et on renvoie un message propre et réessayable.
+    try { logger.log('login failed', typeof e === 'object' ? JSON.stringify(e) : String(e)); } catch { logger.log('login failed'); }
+    const raw = e && (e.message || e.reason || e.error || e.description);
+    const txt = typeof raw === 'string' && raw.trim() ? raw : 'Connexion Microsoft échouée. Réessaie.';
+    throw new Error(txt);
+  }
 });
 
-// Reconnexion silencieuse au démarrage (plus besoin de se reco à chaque fois)
+// Reconnexion silencieuse au démarrage (plus besoin de se reco à chaque fois).
+// IMPORTANT : on N'EFFACE PLUS la session en cas d'échec. Le refresh-token Microsoft est à usage
+// unique ; si on ouvre/ferme vite le launcher, deux reconnexions se chevauchent et l'une échoue
+// (l'autre a déjà consommé/rotaté le token). Effacer ici déconnectait le joueur à tort. On garde
+// donc la session (celle rafraîchie par l'autre lancement reste valide) et on réessaiera.
 async function trySilentLogin() {
   const token = store.get('session');
   if (!token) return;
-  try {
-    const xbox = await authManager.refresh(token);
-    store.set('session', xbox.save());
-    const mc = await xbox.getMinecraft();
-    mcToken = mc.mclc();
-    logger.log('silent login ok', mcToken.name);
-    send('session', { name: mcToken.name, head: await fetchHead(mcToken.uuid) });
-  } catch (e) {
-    logger.log('silent login failed', e?.message || e);
-    store.set('session', null);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const xbox = await authManager.refresh(token);
+      store.set('session', xbox.save());
+      const mc = await xbox.getMinecraft();
+      mcToken = mc.mclc();
+      logger.log('silent login ok', mcToken.name);
+      send('session', { name: mcToken.name, head: await fetchHead(mcToken.uuid) });
+      return;
+    } catch (e) {
+      logger.log('silent login failed (try ' + (attempt + 1) + ')', e?.message || e);
+      if (attempt === 0) await new Promise((r) => setTimeout(r, 1500)); // 2e essai après un court délai
+    }
   }
+  // Échec après 2 essais : on NE touche PAS à la session (évite le logout forcé sur erreur transitoire).
 }
 
 ipcMain.handle('logout', () => {
