@@ -22,10 +22,39 @@ async function fetchManifest() {
   return res.json();
 }
 
-async function downloadTo(url, dest) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('download HTTP ' + res.status + ' ' + url);
-  fs.writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
+/**
+ * Télécharge url -> dest de façon ROBUSTE : timeout d'INACTIVITÉ (abandonne si aucune donnée
+ * reçue pendant idleMs, pour ne JAMAIS pendre à l'infini sur un CDN qui stalle) + retries.
+ * On lit le corps par morceaux et on réarme le timeout à chaque morceau : un download lent mais
+ * qui progresse n'est pas coupé, seul un vrai blocage l'est. Écrit le fichier seulement si complet.
+ */
+async function downloadTo(url, dest, { idleMs = 30000, retries = 2 } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    let timer = setTimeout(() => ctrl.abort(), idleMs);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error('download HTTP ' + res.status + ' ' + url);
+      const chunks = [];
+      const reader = res.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(Buffer.from(value));
+        clearTimeout(timer);
+        timer = setTimeout(() => ctrl.abort(), idleMs); // réarme à chaque morceau reçu
+      }
+      clearTimeout(timer);
+      fs.writeFileSync(dest, Buffer.concat(chunks));
+      return;
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = e;
+      if (attempt < retries) await new Promise((r) => setTimeout(r, 1500)); // petite pause puis on réessaie
+    }
+  }
+  throw lastErr || new Error('download failed ' + url);
 }
 
 /**
