@@ -40,6 +40,7 @@ const {
   getOptionalList,
   installConfigs,
   ensureResourcePackEnabled,
+  enforceEmeriaPackOrder,
   setShaderEnabled,
   setOptionalInstalled,
 } = require('./src/install');
@@ -455,6 +456,8 @@ ipcMain.handle('launch', async () => {
   ensureResourcePackEnabled(MC_ROOT, 'EmeriaBadges.zip');
   // Pancarte Emeria : modèle 3D de l'item (custom_model_data) — forcé actif à chaque lancement.
   ensureResourcePackEnabled(MC_ROOT, 'EmeriaPancarte.zip');
+  // Ordre imposé : EmeriaItems au-dessus (sinon la Pancarte écrase ses items -> papier nu).
+  enforceEmeriaPackOrder(MC_ROOT);
   // Mods optionnels togglables (Axiom legacy + Build + Com) : installés seulement si la
   // catégorie est autorisée pour ce compte ET que le joueur les a activés (case cochée).
   await refreshOptionalList(); // s'assure que l'UI reflète le manifeste au prochain getState

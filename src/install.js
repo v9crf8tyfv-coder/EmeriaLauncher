@@ -350,6 +350,45 @@ function ensureResourcePackEnabled(root, packFile) {
 }
 
 /**
+ * Force l'ORDRE des resource packs Emeria dans options.txt (appelé à chaque lancement).
+ * Dans options.txt, l'ordre du tableau = ordre d'application : le DERNIER gagne (priorité max,
+ * en haut de la liste en jeu). On place les packs connus À LA FIN, dans l'ordre voulu, avec
+ * EmeriaItems EN DERNIER -> son paper.json (qui contient AUSSI les overrides de la Pancarte)
+ * l'emporte, sinon la Pancarte écraserait les items (papier nu). Les autres packs (base, ajouts
+ * du joueur) restent devant, inchangés.
+ */
+function enforceEmeriaPackOrder(root) {
+  const file = path.join(root, 'options.txt');
+  try {
+    if (!fs.existsSync(file)) return;
+    const txt = fs.readFileSync(file, 'utf8');
+    const m = txt.match(/^resourcePacks:(.*)$/m);
+    if (!m) return;
+    let list;
+    try { list = JSON.parse(m[1]); } catch { return; }
+    if (!Array.isArray(list)) return;
+    // Ordre voulu (du bas vers le HAUT de la liste en jeu) -> EmeriaItems en priorité max.
+    const ORDER = [
+      'file/Better Leaves.zip',
+      'file/EvenBetterEnchants_v2_r1.zip',
+      'file/Better-Leaves-9.6.zip',
+      'file/EmeriaBadges.zip',
+      'file/EmeriaPancarte.zip',
+      'file/EmeriaItems.zip',
+    ];
+    const present = ORDER.filter((e) => list.includes(e));
+    if (present.length < 2) return;
+    const rest = list.filter((e) => !present.includes(e));
+    const next = [...rest, ...present];
+    if (JSON.stringify(next) === JSON.stringify(list)) return;
+    const out = txt.replace(/^resourcePacks:.*$/m, 'resourcePacks:' + JSON.stringify(next));
+    fs.writeFileSync(file, out);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
  * macOS : désactive « Colored Lighting » du shader (les drivers Apple ne le supportent pas).
  * Le shader reste actif, seule cette option est coupée -> plus d'« Important Error ».
  */
@@ -536,6 +575,7 @@ module.exports = {
   prettyModName,
   installConfigs,
   ensureResourcePackEnabled,
+  enforceEmeriaPackOrder,
   patchShaderForMac,
   setShaderEnabled,
   setAxiomInstalled,
