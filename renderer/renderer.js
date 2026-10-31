@@ -196,7 +196,7 @@ async function loadSettings() {
   if (catBuild) catBuild.hidden = !s.canUseBuild;
   // Mods optionnels togglables (une case par mod), répartis par catégorie.
   const opt = Array.isArray(s.optionalMods) ? s.optionalMods : [];
-  if (buildMods) renderOptional(buildMods, opt.filter((m) => m.category === 'build'), 'Aucun mod Build.');
+  if (buildMods) renderOptional(buildMods, opt.filter((m) => m.category === 'build'), 'Aucun mod Équipe Build.');
   if (comMods) renderOptional(comMods, opt.filter((m) => m.category === 'com'), 'Aucun mod Com.');
   renderList(modsList, s.mods, 'Aucun mod pour l’instant.');
   renderList(shadersList, s.shaders, 'Aucun shader pour l’instant.');
