@@ -243,7 +243,10 @@ async function checkMacUpdate() {
     const current = app.getVersion();
     logger.log('mac update check', 'current', current, 'latest', latest);
     if (latest && isNewer(current, latest)) {
-      send('updateInfo', `Nouvelle version dispo (v${latest})`);
+      // On affiche le bouton "Mettre à jour" ET on bloque LANCER (on ne joue pas sur une
+      // version périmée). Le clic lance macInPlaceUpdate : télécharge + remplace + relance,
+      // le joueur n'a rien d'autre à faire (aucune réinstallation).
+      send('updateInfo', `Nouvelle version dispo (v${latest}) — clique sur Mettre à jour`);
       send('updateButton', true);
     }
   } catch (e) {
@@ -276,6 +279,70 @@ function setupAutoUpdate() {
   autoUpdater.checkForUpdates().catch(() => {});
   // Revérifie toutes les 10 min : si une maj sort pendant que le launcher est déjà ouvert.
   setInterval(() => { autoUpdater.checkForUpdates().catch(() => {}); }, 10 * 60 * 1000);
+}
+
+// Mise à jour EN PLACE sur macOS (app NON signée, donc electron-updater ne marche pas) :
+// on télécharge le .zip (= EmeriaMC.app), on remplace le bundle existant et on relance.
+// Plus AUCUNE réinstallation manuelle. On strip le quarantine pour que Gatekeeper n'empêche
+// pas l'app non signée de redémarrer. Lance une erreur si impossible (-> repli .dmg).
+async function macInPlaceUpdate() {
+  const cp = require('child_process');
+  send('update', 'Mise à jour… téléchargement');
+  const api = await fetch(
+    'https://api.github.com/repos/v9crf8tyfv-coder/EmeriaLauncher/releases/latest',
+    { headers: { Accept: 'application/vnd.github+json' } },
+  );
+  if (!api.ok) throw new Error('release api ' + api.status);
+  const rel = await api.json();
+  const asset = (rel.assets || []).find((a) => a.name === 'EmeriaMC-mac.zip');
+  if (!asset) throw new Error('zip mac introuvable dans la release');
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'emeria-upd-'));
+  const zipPath = path.join(tmp, 'EmeriaMC-mac.zip');
+  const res = await fetch(asset.browser_download_url);
+  if (!res.ok) throw new Error('download ' + res.status);
+  const total = Number(res.headers.get('content-length')) || 0;
+  const chunks = [];
+  let got = 0;
+  const reader = res.body.getReader();
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(Buffer.from(value));
+    got += value.length;
+    if (total) send('update', `Mise à jour… ${Math.round((got / total) * 100)}%`);
+  }
+  fs.writeFileSync(zipPath, Buffer.concat(chunks));
+
+  send('update', 'Mise à jour… installation');
+  cp.execFileSync('ditto', ['-x', '-k', zipPath, tmp]); // ditto préserve le bundle .app
+  const newApp = path.join(tmp, 'EmeriaMC.app');
+  if (!fs.existsSync(newApp)) throw new Error('.app absente après extraction');
+
+  // Chemin de l'app en cours : /Applications/EmeriaMC.app
+  const appPath = app.getPath('exe').replace(/\/Contents\/MacOS\/[^/]+$/, '');
+  if (!appPath.endsWith('.app')) throw new Error('chemin app inattendu: ' + appPath);
+  // Vérifie qu'on peut écrire à cet emplacement (sinon -> repli .dmg).
+  fs.accessSync(path.dirname(appPath), fs.constants.W_OK);
+
+  // Script détaché : attend la fermeture, remplace le bundle, strip quarantine, relance.
+  const sh = path.join(tmp, 'swap.sh');
+  fs.writeFileSync(
+    sh,
+    `#!/bin/bash
+sleep 1
+for i in $(seq 1 60); do pgrep -f "${appPath}/Contents/MacOS/" >/dev/null || break; sleep 0.5; done
+rm -rf "${appPath}"
+mv "${newApp}" "${appPath}"
+xattr -cr "${appPath}" 2>/dev/null || true
+open "${appPath}"
+`,
+    { mode: 0o755 },
+  );
+  const child = cp.spawn('/bin/bash', [sh], { detached: true, stdio: 'ignore' });
+  child.unref();
+  send('update', 'Mise à jour prête — redémarrage…');
+  setTimeout(() => app.quit(), 1200);
 }
 
 // ---- Tête Minecraft (data URL, pour respecter le CSP) ----
@@ -378,16 +445,23 @@ ipcMain.handle('setCom', (_e, v) => store.set('comEnabled', !!v));
 // Active/désactive un mod optionnel (Build/Com) par son id (case à cocher du launcher).
 ipcMain.handle('setOptional', (_e, id, v) => { if (id) setOptEnabled(String(id), !!v); });
 // Bouton "Mettre à jour" (Mac non signé) : télécharge le bon installeur
-ipcMain.handle('downloadUpdate', () => {
-  const asset = process.platform === 'darwin' ? 'EmeriaMC-mac.dmg' : 'EmeriaMC-windows.exe';
-  shell.openExternal(`https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest/download/${asset}`);
-  // Mac (non signé) : le .dmg ne s'auto-installe pas. On ouvre le téléchargement puis on FERME
-  // le launcher tout seul quelques secondes après -> le joueur installe la nouvelle version
-  // sans avoir l'ancien launcher qui traîne. (Windows/Linux : maj auto, ne passe pas ici.)
+ipcMain.handle('downloadUpdate', async () => {
   if (process.platform === 'darwin') {
-    send('status', 'Téléchargement ouvert — fermeture du launcher…');
-    setTimeout(() => app.quit(), 4000);
+    // On tente la MAJ en place (télécharge + remplace + relance, rien à réinstaller).
+    try {
+      await macInPlaceUpdate();
+      return;
+    } catch (e) {
+      logger.log('mac in-place update failed -> dmg', e?.message);
+      // Repli seulement si l'auto échoue : on ouvre le .dmg puis on ferme.
+      shell.openExternal('https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest/download/EmeriaMC-mac.dmg');
+      send('status', 'Mise à jour auto impossible — téléchargement ouvert.');
+      setTimeout(() => app.quit(), 4000);
+      return;
+    }
   }
+  // Windows/Linux : electron-updater gère tout seul, mais au cas où -> on ouvre l'installeur.
+  shell.openExternal('https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/latest/download/EmeriaMC-windows.exe');
 });
 ipcMain.handle('setRam', (_e, v) => {
   const n = Math.max(2, Math.min(maxRamGB(), Number(v) || 4));

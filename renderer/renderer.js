@@ -149,14 +149,19 @@ window.api.onStatus((s) => (statusEl.textContent = s));
 window.api.onUpdateInfo((msg) => {
   statusEl.textContent = msg;
 });
-// Bouton "Mettre à jour" (Mac) : télécharge le bon launcher
+// Bouton "Mettre à jour" (Mac) : une maj est dispo -> on l'affiche ET on BLOQUE Jouer
+// (on ne joue pas sur une version périmée, même principe que Windows/Linux).
 window.api.onUpdateButton(() => {
   if (updateBtn) updateBtn.hidden = false;
+  playBtn.disabled = true;
+  setPlay('mise-a-jour');
+  statusEl.textContent = 'Mise à jour requise avant de jouer.';
 });
 if (updateBtn) {
   updateBtn.addEventListener('click', () => {
     window.api.downloadUpdate();
     if (updateImg) updateImg.src = 'btn-mise-a-jour.png';
+    statusEl.textContent = 'Mise à jour en cours…';
   });
 }
 // Vraie maj en cours (Windows/Linux qui se télécharge) : on bloque le lancement

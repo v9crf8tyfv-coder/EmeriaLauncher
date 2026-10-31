@@ -1,3 +1,5 @@
+/* Police Sora = la DA du site (repli système si hors-ligne). */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
 * {
   margin: 0;
   padding: 0;
@@ -18,7 +20,7 @@
   --accent: #7c5cff;
 }
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--txt);
   height: 100vh;
   overflow: hidden;
@@ -394,6 +396,7 @@ input[type='range'] {
   font-size: 12px;
   color: var(--muted);
   margin-top: 8px;
+  margin-bottom: 12px;
 }
 .toggle-row {
   display: flex;
