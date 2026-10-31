@@ -152,7 +152,11 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 560,
-    resizable: false,
+    minWidth: 820,
+    minHeight: 520,
+    resizable: true,
+    maximizable: true,
+    fullscreenable: true,
     title: 'EmeriaMC',
     backgroundColor: '#0b0b10',
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
