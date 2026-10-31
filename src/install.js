@@ -16,10 +16,34 @@ function sha256File(file) {
   }
 }
 
+// Cache court en mémoire : le manifeste était re-téléchargé 5-8 fois PAR lancement (chaque sync
+// le refetchait) -> autant d'allers-retours réseau inutiles. On le récupère UNE fois et on le
+// réutilise pendant 20 s. Un nouveau lancement = nouveau process = cache vide -> toujours frais.
+let _manifestCache = null;
+let _manifestAt = 0;
 async function fetchManifest() {
-  const res = await fetch(MANIFEST_URL + '?t=' + Date.now());
+  const now = Date.now();
+  if (_manifestCache && now - _manifestAt < 20000) return _manifestCache;
+  const res = await fetch(MANIFEST_URL + '?t=' + now);
   if (!res.ok) throw new Error('manifest HTTP ' + res.status);
-  return res.json();
+  const j = await res.json();
+  _manifestCache = j;
+  _manifestAt = now;
+  return j;
+}
+
+// Exécute `fn` sur chaque élément avec au plus `limit` en parallèle (téléchargements simultanés).
+async function parallelLimit(items, limit, fn) {
+  const queue = [...items];
+  const n = Math.min(Math.max(1, limit), queue.length || 1);
+  const workers = Array.from({ length: n }, async () => {
+    for (;;) {
+      const it = queue.shift();
+      if (it === undefined) return;
+      await fn(it);
+    }
+  });
+  await Promise.all(workers);
 }
 
 /**
@@ -90,16 +114,15 @@ async function syncModsFromManifest(root, onProgress) {
     }
   }
 
-  // Télécharge uniquement ce qui a changé
-  let i = 0;
-  for (const m of wanted) {
-    const dest = path.join(to, m.name);
-    if (sha256File(dest) !== m.sha256) {
-      if (onProgress) onProgress(m.name, i, wanted.length);
-      await downloadTo(m.url, dest);
-    }
-    i++;
-  }
+  // Télécharge uniquement ce qui a changé, et EN PARALLÈLE (jusqu'à 4 à la fois) -> lancement
+  // bien plus rapide quand plusieurs mods ont changé.
+  const toDl = wanted.filter((m) => sha256File(path.join(to, m.name)) !== m.sha256);
+  let done = 0;
+  await parallelLimit(toDl, 4, async (m) => {
+    if (onProgress) onProgress(m.name, done, toDl.length);
+    await downloadTo(m.url, path.join(to, m.name));
+    done++;
+  });
 
   // Mémorise la liste des mods GÉRÉS par Emeria (pour ne supprimer QUE ceux-là à l'avenir).
   try { fs.writeFileSync(managedMarker, JSON.stringify([...wantedNames])); } catch { /* ignore */ }
@@ -185,18 +208,17 @@ async function syncResourcepacksFromManifest(root, onProgress) {
     return; // pas de réseau -> on garde l'existant
   }
   const wanted = Array.isArray(manifest.resourcepacks) ? manifest.resourcepacks : [];
-  let i = 0;
-  for (const m of wanted) {
-    const dest = path.join(to, m.name);
-    if (sha256File(dest) !== m.sha256) {
-      if (onProgress) onProgress(m.name, i, wanted.length);
-      await downloadTo(m.url, dest);
-    }
-    // Active automatiquement CHAQUE resourcepack du manifest dans options.txt
-    // (évite qu'un nouveau pack, ex. EmeriaItems, soit téléchargé mais pas appliqué).
-    ensureResourcePackEnabled(root, m.name);
-    i++;
-  }
+  // Téléchargements EN PARALLÈLE (jusqu'à 4) de ce qui a changé.
+  const toDl = wanted.filter((m) => sha256File(path.join(to, m.name)) !== m.sha256);
+  let done = 0;
+  await parallelLimit(toDl, 4, async (m) => {
+    if (onProgress) onProgress(m.name, done, toDl.length);
+    await downloadTo(m.url, path.join(to, m.name));
+    done++;
+  });
+  // Activation dans options.txt : SÉQUENTIEL (on écrit le même fichier, pas de parallèle).
+  // Évite qu'un nouveau pack (ex. EmeriaItems) soit téléchargé mais pas appliqué.
+  for (const m of wanted) ensureResourcePackEnabled(root, m.name);
 }
 
 /**
