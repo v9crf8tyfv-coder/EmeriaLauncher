@@ -62,6 +62,7 @@ const LOG_WEBHOOK = '';
 let mainWindow;
 let tray = null; // icône barre système (Windows)
 let gameRunning = false; // une seule partie à la fois (empêche 2 comptes lancés en même temps)
+let winUpdatePending = false; // maj Win/Linux téléchargée mais en attente (joueur en jeu)
 let mcToken = null; // token pour minecraft-launcher-core
 const authManager = new Auth('select_account');
 
@@ -113,10 +114,11 @@ async function refreshOptionalList() {
   } catch { /* garde la liste courante */ }
 }
 
-// Activation par mod optionnel (case à cocher du launcher), persistée. Défaut : activé.
+// Activation par mod optionnel (case à cocher du launcher), persistée. Défaut : DÉSACTIVÉ
+// (opt-in) -> on ne télécharge RIEN tant que le joueur n'a pas coché la case lui-même.
 function optEnabled(id) {
   const map = store.get('optEnabled', {});
-  return map[id] !== false;
+  return map[id] === true;
 }
 function setOptEnabled(id, v) {
   const map = store.get('optEnabled', {});
@@ -243,11 +245,17 @@ async function checkMacUpdate() {
     const current = app.getVersion();
     logger.log('mac update check', 'current', current, 'latest', latest);
     if (latest && isNewer(current, latest)) {
-      // On affiche le bouton "Mettre à jour" ET on bloque LANCER (on ne joue pas sur une
-      // version périmée). Le clic lance macInPlaceUpdate : télécharge + remplace + relance,
-      // le joueur n'a rien d'autre à faire (aucune réinstallation).
-      send('updateInfo', `Nouvelle version dispo (v${latest}) — clique sur Mettre à jour`);
-      send('updateButton', true);
+      // AUTO, sans bouton : si on n'est PAS en jeu, on met à jour tout seul (télécharge +
+      // remplace + relance). En jeu -> on ne touche à rien, on réessaiera (check 10 min /
+      // fin de partie). Si la maj auto échoue (permissions…), repli sur le bouton manuel.
+      if (gameRunning) return;
+      try {
+        await macInPlaceUpdate();
+      } catch (e) {
+        logger.log('mac auto-update impossible -> bouton', e?.message);
+        send('updateInfo', `Nouvelle version dispo (v${latest}) — clique sur Mettre à jour`);
+        send('updateButton', true);
+      }
     }
   } catch (e) {
     logger.log('mac update check error', e?.message);
@@ -272,6 +280,13 @@ function setupAutoUpdate() {
     send('update', `Mise à jour du launcher… ${Math.round(p.percent)}%`),
   );
   autoUpdater.on('update-downloaded', () => {
+    // En jeu : on NE redémarre PAS maintenant -> on attend la fin de la partie (voir le
+    // handler 'close' du jeu). Sinon on redémarre tout seul (le joueur n'a rien à faire).
+    if (gameRunning) {
+      winUpdatePending = true;
+      send('updateInfo', 'Mise à jour prête — redémarrage après ta partie.');
+      return;
+    }
     send('update', 'Mise à jour prête — redémarrage…');
     setTimeout(() => autoUpdater.quitAndInstall(), 2500);
   });
@@ -425,6 +440,7 @@ ipcMain.handle('getSettings', () => {
   return {
     ram: auto ? recommendedRamGB() : Math.min(store.get('ram', 4), max),
     maxRam: max,
+    totalRam: detectedRamGB(), // RAM physique réelle du PC (pour un affichage honnête)
     ramAuto: auto,
     autoRam: recommendedRamGB(),
     mods: displayMods,
@@ -561,6 +577,10 @@ ipcMain.handle('launch', async () => {
     }
     send('closed', code);
     discordRpc.onLauncher(); // retour « sur le launcher »
+    // Partie finie : si une maj attendait (Win/Linux) ou est dispo (Mac), on l'applique
+    // maintenant tout seul, sans que le joueur ait à faire quoi que ce soit.
+    if (winUpdatePending) { setTimeout(() => autoUpdater.quitAndInstall(), 1500); }
+    else if (process.platform === 'darwin' && app.isPackaged) { checkMacUpdate(); }
   });
 
   await launcher.launch({

@@ -190,8 +190,8 @@ async function loadSettings() {
   const hint = document.getElementById('ram-max-hint');
   if (hint) {
     hint.textContent = s.ramAuto
-      ? `Auto : ${s.autoRam} Go alloués (max ${s.maxRam} Go sur ton PC)`
-      : `Max détecté sur ton PC : ${s.maxRam} Go`;
+      ? `Auto : ${s.autoRam} Go alloués au jeu · RAM du PC : ${s.totalRam} Go (max allouable ${s.maxRam} Go)`
+      : `RAM de ton PC : ${s.totalRam} Go · max allouable au jeu : ${s.maxRam} Go`;
   }
   shaderToggle.checked = s.shaderEnabled;
   // Com : onglet visible seulement pour les autorisés Com
