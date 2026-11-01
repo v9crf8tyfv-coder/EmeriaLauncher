@@ -114,15 +114,32 @@ async function syncModsFromManifest(root, onProgress) {
     }
   }
 
-  // Télécharge uniquement ce qui a changé, et EN PARALLÈLE (jusqu'à 4 à la fois) -> lancement
-  // bien plus rapide quand plusieurs mods ont changé.
-  const toDl = wanted.filter((m) => sha256File(path.join(to, m.name)) !== m.sha256);
+  // Marqueur du sha installé par mod : un mod déjà présent à la BONNE version est sauté SANS
+  // re-hasher le fichier ni le re-télécharger (lancement plus rapide + on ne "réinstalle" pas
+  // les mods déjà là). On ne re-télécharge que si : le fichier manque, OU le manifeste a changé
+  // la version (sha différent du marqueur), OU aucun marqueur et le fichier ne correspond pas.
+  const shaMarker = path.join(root, '.emeria-mod-shas');
+  let installed = {};
+  try { installed = JSON.parse(fs.readFileSync(shaMarker, 'utf8')) || {}; } catch { /* 1re fois */ }
+
+  const toDl = wanted.filter((m) => {
+    const dest = path.join(to, m.name);
+    if (!fs.existsSync(dest)) return true;              // absent -> télécharger
+    if (installed[m.name] === m.sha256) return false;   // déjà la bonne version -> SKIP (sans re-hasher)
+    return sha256File(dest) !== m.sha256;               // sha inconnu/changé -> on vérifie le fichier
+  });
   let done = 0;
   await parallelLimit(toDl, 4, async (m) => {
     if (onProgress) onProgress(m.name, done, toDl.length);
     await downloadTo(m.url, path.join(to, m.name));
     done++;
   });
+
+  // Après sync, tous les mods voulus sont à la version du manifeste -> on mémorise leurs shas
+  // (pour sauter le re-hash/re-téléchargement au prochain lancement).
+  const newInstalled = {};
+  for (const m of wanted) newInstalled[m.name] = m.sha256;
+  try { fs.writeFileSync(shaMarker, JSON.stringify(newInstalled)); } catch { /* ignore */ }
 
   // Mémorise la liste des mods GÉRÉS par Emeria (pour ne supprimer QUE ceux-là à l'avenir).
   try { fs.writeFileSync(managedMarker, JSON.stringify([...wantedNames])); } catch { /* ignore */ }
