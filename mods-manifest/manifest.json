@@ -25,18 +25,6 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Jade-1.21.1-Fabric-15.10.6.jar"
     },
     {
-      "name": "Platform-fabric-1.21.1-1.3.3.jar",
-      "sha256": "52f49993d4440d266fa3a077090e8091983cd1bda5942f176ae75f3e9e350779",
-      "size": 735744,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Platform-fabric-1.21.1-1.3.3.jar"
-    },
-    {
-      "name": "VanillaBackport-fabric-1.21.1-1.1.7.10.jar",
-      "sha256": "6aba8f56fd71b9b5b724812b22f14d11a71e9ca0bf7e84b52b4c8b91736e0734",
-      "size": 54994072,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/VanillaBackport-fabric-1.21.1-1.1.7.10.jar"
-    },
-    {
       "name": "architectury-13.0.11-fabric.jar",
       "sha256": "ab17d5c7d8d8c93cc713437ed426f0ff0d6f802a48fff0c579a9bd3aaa833efd",
       "size": 600921,
@@ -49,28 +37,10 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/citresewn-1.2.2.1.21.jar"
     },
     {
-      "name": "easy_npc-fabric-1.21.1-7.6.0.jar",
-      "sha256": "877923c411d3a351bfd9556ef1385080c4f8438c8763d7f555ba67b2bf3cc278",
-      "size": 2706690,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/easy_npc-fabric-1.21.1-7.6.0.jar"
-    },
-    {
-      "name": "easy_npc_config_ui-fabric-1.21.1-7.6.0.jar",
-      "sha256": "c5fd10529cd618a123589b70d56ed14bb28574f6be5b02b8bb9feb50cb54e503",
-      "size": 1059134,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/easy_npc_config_ui-fabric-1.21.1-7.6.0.jar"
-    },
-    {
       "name": "entityculling-fabric-1.10.5-mc1.21.1.jar",
       "sha256": "cfb5491f5ed9609784cf3d6a926bef046ca80cb74c7856e6134335d7d0ce839e",
       "size": 1595131,
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/entityculling-fabric-1.10.5-mc1.21.1.jar"
-    },
-    {
-      "name": "fabric-api-0.116.15+1.21.1.jar",
-      "sha256": "a61a10f730ab8aa45ff42486ee65699e6e51c28a0c168deb161e7d4029473aa3",
-      "size": 2452718,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-api-0.116.15.1.21.1.jar"
     },
     {
       "name": "fabric-language-kotlin-1.13.13+kotlin.2.4.10.jar",
@@ -115,12 +85,6 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/modmenu-11.0.4.jar"
     },
     {
-      "name": "open-parties-and-claims-fabric-1.21.1-0.29.3.jar",
-      "sha256": "ce16639b15773588a26a4cd78aca89c4a3eac24fe6faa87c3a52c5d6f226ce4b",
-      "size": 1758901,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/open-parties-and-claims-fabric-1.21.1-0.29.3.jar"
-    },
-    {
       "name": "placeholder-api-2.4.2+1.21.jar",
       "sha256": "c0187ee299527ac7a3e0b1e83601dcdc0de631e286fe41e6be1a75958ea8e443",
       "size": 232325,
@@ -137,18 +101,6 @@
       "sha256": "9ad11a616d1ca759867de8a5bbafcde5ab50b68dbd674110c7b90aeea251b793",
       "size": 1573180,
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/sodium-fabric-0.8.12.mc1.21.1.jar"
-    },
-    {
-      "name": "xaerominimap-fabric-1.21.1-26.4.2.jar",
-      "sha256": "85342f8f7c098e98f2f200fbba308a243af1204cb1afd7668360420e635aa2f8",
-      "size": 2233608,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/xaerominimap-fabric-1.21.1-26.4.2.jar"
-    },
-    {
-      "name": "xaeroworldmap-fabric-1.21.1-1.44.2.jar",
-      "sha256": "cd6109af335ad83af9e97cdae5c25023112349e2dc4df95a97640022f38b3856",
-      "size": 1448218,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/xaeroworldmap-fabric-1.21.1-1.44.2.jar"
     },
     {
       "name": "yet_another_config_lib_v3-3.8.2+1.21.1-fabric.jar",
@@ -187,20 +139,109 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/AmbientSounds_FABRIC_v6.3.8_mc1.21.1.jar"
     },
     {
-      "name": "starterkit-1.21.1-8.1.jar",
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/starterkit-1.21.1-8.1.jar",
-      "sha256": "1a6ff64609995f9310ad83ccd0c86e8bed328a8e06bb78479421a35b49457d54"
+      "name": "WorldEditCUI-1.21.1+01.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/WorldEditCUI-1.21.1%2B01.jar",
+      "sha256": "2f212dd0d3a35ced1c5401123fa06deb6539cb1c4e57559c8c859e29bdb3fae4"
     },
     {
-      "name": "collective-1.21.1-8.39.jar",
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/collective-1.21.1-8.39.jar",
-      "sha256": "ae59b63790c3097fb01e7801c21f3e7feed13b151c2ad993895196c74381a8fe"
+      "name": "Axiom-6.1.3-for-MC1.21.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Axiom-6.1.3-for-MC1.21.1.jar",
+      "sha256": "6121b645eeec340dd851f5dbe3b9cb9f018028388c00870174da60daee309602"
+    },
+    {
+      "name": "fabric-api-0.116.17+1.21.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fabric-api-0.116.17%2B1.21.1.jar",
+      "sha256": "79ac44b40780acbd884b34c50be1e39af682847e5f5cb3b1fddeeaa768dce800"
+    },
+    {
+      "name": "open-parties-and-claims-fabric-1.21.1-0.33.0.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/open-parties-and-claims-fabric-1.21.1-0.33.0.jar",
+      "sha256": "3035a8d59e537db9beb7ca2f3a3d0e4e43e4561e01e40d59ae694334b9ad6d42"
+    },
+    {
+      "name": "Platform-fabric-1.21.1-1.4.2.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Platform-fabric-1.21.1-1.4.2.jar",
+      "sha256": "77dbfbdb7cbb661f5187f7941f4ffc9657daf8676e252996b7980650aaf5100a"
+    },
+    {
+      "name": "VanillaBackport-fabric-1.21.1-1.2.2.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/VanillaBackport-fabric-1.21.1-1.2.2.jar",
+      "sha256": "e0f73c72ac1ce16bcde2bd7351fb45c7087e9d48797426c3bed842e5e3e73f70"
+    },
+    {
+      "name": "easy_npc-fabric-1.21.1-7.17.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/easy_npc-fabric-1.21.1-7.17.1.jar",
+      "sha256": "16a10cf0d4f651bf3ed0db15883814643544a00720e27f22e352c2693a2e4f04"
+    },
+    {
+      "name": "xaerominimap-fabric-1.21.1-26.6.0.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/xaerominimap-fabric-1.21.1-26.6.0.jar",
+      "sha256": "86bdc4282a73ed55e6a4903a7ba65940a6aed20404f7ab7c96f8d94078accd1b"
+    },
+    {
+      "name": "xaeroworldmap-fabric-1.21.1-1.47.0.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/xaeroworldmap-fabric-1.21.1-1.47.0.jar",
+      "sha256": "3e8211e02681f8bc17e1a066b3fcffddfa969cff03f48a5400016f587ba5f8f2"
+    },
+    {
+      "name": "easy_npc_bundle-fabric-1.21.1-7.17.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/easy_npc_bundle-fabric-1.21.1-7.17.1.jar",
+      "sha256": "a750a49bed0c426deb1668ceaadd88bccf901ed9d51e350f61617c4e83e960e8"
+    },
+    {
+      "name": "easy_npc_config_ui-fabric-1.21.1-7.17.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/easy_npc_config_ui-fabric-1.21.1-7.17.1.jar",
+      "sha256": "a5c7cb0f4ab79bf9b7f75e4da7a9ab1af2d0282180f75ad84b3335b0093ce0ee"
+    },
+    {
+      "name": "starterkit-1.21.1-9.0.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/starterkit-1.21.1-9.0.jar",
+      "sha256": "b91192429ccafff38a82f9727b1c32191dde2fcc37130caa35afa77c9b1ff35c"
     },
     {
       "name": "emeriacore-1.0.0.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "66125ac410abe7e020bdab5c2a818cb588f35de76c42f06defa9c6146d899d13",
-      "size": 960741
+      "sha256": "c7ce6c094f5d6ec1a8081a78124f94a8dcd03c4a9bd786b68e03aae563129ed2"
+    },
+    {
+      "name": "mezz_config-1.21.1-fabric-0.6.10.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/mezz_config-1.21.1-fabric-0.6.10.jar",
+      "sha256": "2deede07622c6871936ab75f016d05fbc6596230a328cb79705bb7ffd4909d04"
+    },
+    {
+      "name": "vmp-fabric-mc1.21.1-0.2.0+beta.7.172-all.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/vmp-fabric-mc1.21.1-0.2.0%2Bbeta.7.172-all.jar",
+      "sha256": "97a35a4388b1e7cd5325983b1e3f5f72fe7460367ef5755ae9fc9785c2930803"
+    },
+    {
+      "name": "cloth-config-15.0.140-fabric.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/cloth-config-15.0.140-fabric.jar",
+      "sha256": "33894e95da3af59014b39d126586d5241e07ea39f8618763e30dab637405f95f"
+    },
+    {
+      "name": "another_furniture-fabric-4.0.2.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/another_furniture-fabric-4.0.2.jar",
+      "sha256": "3f0e6c276dde5cd6390e9c14bc4c283e4043f25d812c1f5ecc36b7b2f61642b5"
+    },
+    {
+      "name": "webgui-fabric-2.0.0+mc1.21.1.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/webgui-fabric-2.0.0%2Bmc1.21.1.jar",
+      "sha256": "87e817edf6c4bf6d9f551385a0b33316b207f54dcb5f89b595826b30c5541d55"
+    },
+    {
+      "name": "jei-1.21.1-fabric-19.64.0.455.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/jei-1.21.1-fabric-19.64.0.455.jar",
+      "sha256": "1bc14659d8cf0cd9de801f56947950521134b25eb37725ce3ea94797b9165745"
+    },
+    {
+      "name": "toms_storage_fabric-1.21-2.4.2.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/toms_storage_fabric-1.21-2.4.2.jar",
+      "sha256": "a5e806feef6f538ecaf030dd812d0f7d377188b7673697af08c671b0c500311e"
+    },
+    {
+      "name": "collective-1.21.1-8.77.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/collective-1.21.1-8.77.jar",
+      "sha256": "287202c013835e4555ed917512da1d65e940879873455fa1653526e9c05d73e8"
     }
   ],
   "resourcepacks": [
@@ -208,11 +249,6 @@
       "name": "EvenBetterEnchants_v2_r1.zip",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/EvenBetterEnchants_v2_r1.zip",
       "sha256": "bf3879bfe3607936248a070037c730082a46556ef2cdfb285e05ac93a88665ea"
-    },
-    {
-      "name": "§fBetter §2§lLeaves.zip",
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/fBetter.2.lLeaves.zip",
-      "sha256": "a916a456a4ea9b0029235d93f161ab79d5437a8503c929f620306b97d3cbc0bc"
     },
     {
       "name": "EmeriaBadges.zip",
@@ -224,6 +260,16 @@
       "name": "EmeriaPancarte.zip",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/EmeriaPancarte.zip",
       "sha256": "dc6d7f773c66378496ecca0aec1d29b46a53277c6d76ac7abd97c6996d5fb86c"
+    },
+    {
+      "name": "EmeriaItems.zip",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/EmeriaItems.zip",
+      "sha256": "11e2c488870ea98659ade910a9becba5da885761a851a45a0d8575fcfed3fdbe"
+    },
+    {
+      "name": "Better-Leaves-9.6.zip",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Better-Leaves-9.6.zip",
+      "sha256": "cbeeccd774f910ed270dbe9651d789a8f785d055499f846e466d86f9cae91e90"
     }
   ],
   "optional": [
@@ -234,5 +280,16 @@
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Axiom-5.4.2-for-MC1.21.1.jar",
       "id": "axiom"
     }
+  ],
+  "axiomAllowed": [
+    "Xtazzking",
+    "Orionyx84"
+  ],
+  "buildAllowed": [
+    "Xtazzking",
+    "Orionyx84"
+  ],
+  "comAllowed": [
+    "Mrchiro33"
   ]
 }
