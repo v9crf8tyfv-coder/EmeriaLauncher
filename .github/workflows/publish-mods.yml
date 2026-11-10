@@ -59,12 +59,12 @@ jobs:
           if os.path.exists(lp):
               try:
                   live=json.load(open(lp))
-                  for k in ('comAllowed','axiomAllowed'):
+                  for k in ('comAllowed','axiomAllowed','buildAllowed'):
                       v=live.get(k)
                       if isinstance(v,list):
                           d[k]=v
-                  print('staff préservé depuis la release: com=%d axiom=%d'
-                        % (len(d.get('comAllowed',[])), len(d.get('axiomAllowed',[]))))
+                  print('staff préservé depuis la release: com=%d axiom=%d build=%d'
+                        % (len(d.get('comAllowed',[])), len(d.get('axiomAllowed',[])), len(d.get('buildAllowed',[]))))
               except Exception as e:
                   print('manifeste live illisible -> staff non modifié:', e)
           else:
@@ -72,6 +72,12 @@ jobs:
           json.dump(d,open(p,'w'),indent=2,ensure_ascii=False)
           print('URLs assainies:',n)
           PY
-          # 2) upload propre : jar au nom stable + resourcepacks suivis + manifest
+          # 2) gros mod Galacticraft : uploadé UNE SEULE fois (si absent de la release),
+          #    AVANT le manifest -> jamais de 404. Les pushs suivants le sautent (déjà présent).
+          GJAR="Galacticraft-fabric-5.4.19-prealpha-16293905.jar"
+          if [ -f "mods-manifest/$GJAR" ] && ! gh release view mods --repo "$R" --json assets --jq '.assets[].name' | grep -qx "$GJAR"; then
+            echo "upload $GJAR (une fois)…"; gh release upload mods "mods-manifest/$GJAR" --repo "$R" --clobber || true
+          fi
+          # 3) upload propre : jar au nom stable + resourcepacks suivis + manifest
           gh release upload mods mods-manifest/emeriacore-1.0.0.jar mods-manifest/EmeriaBadges.zip mods-manifest/manifest.json --repo "$R" --clobber
           echo "Publié : emeriacore-1.0.0.jar + EmeriaBadges.zip + manifest.json"
