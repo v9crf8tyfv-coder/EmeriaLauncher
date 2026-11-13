@@ -74,7 +74,12 @@ jobs:
           PY
           # 2) gros mod Galacticraft : uploadé UNE SEULE fois (si absent de la release),
           #    AVANT le manifest -> jamais de 404. Les pushs suivants le sautent (déjà présent).
-          GJAR="Galacticraft-fabric-5.4.19-prealpha-16293905.jar"
+          GJAR="Galacticraft-fabric-5.4.20-prealpha-2d0ea7b5.jar"
+          GJAR_OLD="Galacticraft-fabric-5.4.19-prealpha-16293905.jar"
+          # supprime l'ancienne version de la release si elle y est encore
+          if gh release view mods --repo "$R" --json assets --jq '.assets[].name' | grep -qx "$GJAR_OLD"; then
+            echo "suppression ancien $GJAR_OLD…"; gh release delete-asset mods "$GJAR_OLD" --repo "$R" -y || true
+          fi
           if [ -f "mods-manifest/$GJAR" ] && ! gh release view mods --repo "$R" --json assets --jq '.assets[].name' | grep -qx "$GJAR"; then
             echo "upload $GJAR (une fois)…"; gh release upload mods "mods-manifest/$GJAR" --repo "$R" --clobber || true
           fi

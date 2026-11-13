@@ -184,7 +184,7 @@
     {
       "name": "emeriacore-1.0.0.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "6a36e68a16d285a5f69bce43e4c37bd100761b92125a78e41082a389580a8d8e"
+      "sha256": "f21df6e98f7fd98c6b4316f334ef359ec5733098f865430333796441a5aaaec9"
     },
     {
       "name": "mezz_config-1.21.1-fabric-0.6.10.jar",
@@ -352,10 +352,10 @@
       "sha256": "70bafae3f0e4ba6ac8d94b479c61bed53bd04f1729ad1df1fa9640b485d59e61"
     },
     {
-      "name": "Galacticraft-fabric-5.4.19-prealpha-16293905.jar",
-      "sha256": "372087b4b4af62c5f140aea0c78519e1daa5a61aaaa5d0a345b628cdc49bd331",
-      "size": 71146276,
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Galacticraft-fabric-5.4.19-prealpha-16293905.jar"
+      "name": "Galacticraft-fabric-5.4.20-prealpha-2d0ea7b5.jar",
+      "sha256": "ce66505ddedee0c2b34ecb04739f1bf72480b1128dc7a49f9be5531771f21c69",
+      "size": 71148380,
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Galacticraft-fabric-5.4.20-prealpha-2d0ea7b5.jar"
     }
   ],
   "resourcepacks": [
