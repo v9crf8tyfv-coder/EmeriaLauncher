@@ -366,6 +366,12 @@
       "sha256": "ce66505ddedee0c2b34ecb04739f1bf72480b1128dc7a49f9be5531771f21c69",
       "size": 71148380,
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/Galacticraft-fabric-5.4.20-prealpha-2d0ea7b5.jar"
+    },
+    {
+      "name": "bookshelf-fabric-1.21.1-21.1.81.jar",
+      "sha256": "df2dd3a3e75f2dbf56baf9bdb6cc0007f9c0efb0f2b2067f047ddf98ea1b49d8",
+      "size": 330355,
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/bookshelf-fabric-1.21.1-21.1.81.jar"
     }
   ],
   "resourcepacks": [
