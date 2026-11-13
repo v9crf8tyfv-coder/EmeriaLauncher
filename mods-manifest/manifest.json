@@ -182,11 +182,6 @@
       "sha256": "b91192429ccafff38a82f9727b1c32191dde2fcc37130caa35afa77c9b1ff35c"
     },
     {
-      "name": "emeriacore-1.0.0.jar",
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
-      "sha256": "f21df6e98f7fd98c6b4316f334ef359ec5733098f865430333796441a5aaaec9"
-    },
-    {
       "name": "mezz_config-1.21.1-fabric-0.6.10.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/mezz_config-1.21.1-fabric-0.6.10.jar",
       "sha256": "2deede07622c6871936ab75f016d05fbc6596230a328cb79705bb7ffd4909d04"
@@ -215,11 +210,6 @@
       "name": "toms_storage_fabric-1.21-2.4.2.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/toms_storage_fabric-1.21-2.4.2.jar",
       "sha256": "a5e806feef6f538ecaf030dd812d0f7d377188b7673697af08c671b0c500311e"
-    },
-    {
-      "name": "collective-1.21.1-8.77.jar",
-      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/collective-1.21.1-8.77.jar",
-      "sha256": "287202c013835e4555ed917512da1d65e940879873455fa1653526e9c05d73e8"
     },
     {
       "name": "wizards-fabric-3.1.3+1.21.1.jar",
@@ -350,6 +340,26 @@
       "name": "azurelib-fabric-1.21.1-3.2.8.jar",
       "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/azurelib-fabric-1.21.1-3.2.8.jar",
       "sha256": "70bafae3f0e4ba6ac8d94b479c61bed53bd04f1729ad1df1fa9640b485d59e61"
+    },
+    {
+      "name": "emeriacore-1.0.0.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/emeriacore-1.0.0.jar",
+      "sha256": "f21df6e98f7fd98c6b4316f334ef359ec5733098f865430333796441a5aaaec9"
+    },
+    {
+      "name": "collective-1.21.1-8.86.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/collective-1.21.1-8.86.jar",
+      "sha256": "538cbc1f361f4a75d7c30647d0b0acba18fd3442e4d8a90759e10d41f853c8e1"
+    },
+    {
+      "name": "prickle-fabric-1.21.1-21.1.11.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/prickle-fabric-1.21.1-21.1.11.jar",
+      "sha256": "d6d639078aecb72770f287d8253e4634114e2536ac9a2ad6ec5f442eb27dd07f"
+    },
+    {
+      "name": "OpenLoader-fabric-1.21.1-21.1.5.jar",
+      "url": "https://github.com/v9crf8tyfv-coder/EmeriaLauncher/releases/download/mods/OpenLoader-fabric-1.21.1-21.1.5.jar",
+      "sha256": "95b48a53035f1b7193916b8202637a582d6680ebdcdb0ce6a0c6c0427a443483"
     },
     {
       "name": "Galacticraft-fabric-5.4.20-prealpha-2d0ea7b5.jar",
