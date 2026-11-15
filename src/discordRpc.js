@@ -71,5 +71,7 @@ function start(clientId) {
 }
 function onLauncher() { if (rpc) rpc.setActivity(activity('Actuellement sur le launcher', sessionStart)); }
 function onInGame() { if (rpc) { sessionStart = Math.floor(Date.now() / 1000); rpc.setActivity(activity('En jeu', sessionStart)); } }
+// VANISH : on retire complètement le statut Discord (le staff vanish ne doit pas être exposé « En jeu »).
+function onHidden() { if (rpc) rpc.setActivity(null); }
 
-module.exports = { start, onLauncher, onInGame };
+module.exports = { start, onLauncher, onInGame, onHidden };

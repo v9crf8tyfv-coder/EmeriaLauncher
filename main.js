@@ -54,6 +54,30 @@ const DISCORD_APP_ID = '1547631011469463603';
 // ---- Config EmeriaMC ----
 const MC_VERSION = '1.21.1';
 const MC_ROOT = path.join(app.getPath('appData'), '.emeria');
+
+// ===== Statut Discord selon le VANISH en jeu =====
+// Le mod EmeriaCore écrit emeria-presence.txt ("hidden" quand le joueur est vanish, sinon "ingame").
+// On le sonde : vanish -> on retire le statut Discord (le staff vanish n'est plus exposé « En jeu »).
+const PRESENCE_FILE = path.join(MC_ROOT, 'emeria-presence.txt');
+let presenceTimer = null, presenceLast = null;
+function applyPresence(state) {
+  if (state === presenceLast) return;
+  presenceLast = state;
+  if (state === 'hidden') discordRpc.onHidden(); else discordRpc.onInGame();
+}
+function startPresenceWatch() {
+  stopPresenceWatch();
+  presenceTimer = setInterval(() => {
+    let s = null; try { s = fs.readFileSync(PRESENCE_FILE, 'utf8').trim(); } catch (e) {}
+    if (s === 'hidden' || s === 'ingame') applyPresence(s);
+  }, 2000);
+}
+function stopPresenceWatch() {
+  if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+  presenceLast = null;
+  try { fs.unlinkSync(PRESENCE_FILE); } catch (e) {}
+}
+
 const SERVER = { host: 'emeriamc.mine.gg', port: 10006 };
 const SERVER_IP = `${SERVER.host}:${SERVER.port}`;
 // Webhook Discord pour « Envoyer les logs » (à remplir plus tard). Vide = ouvre le dossier.
@@ -569,6 +593,7 @@ ipcMain.handle('launch', async () => {
   launcher.on('close', (code) => {
     logger.log('game closed code=' + code);
     gameRunning = false; // partie terminée -> on peut relancer
+    stopPresenceWatch();
     // Jeu fermé -> on remet le launcher au premier plan
     if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMinimized()) mainWindow.restore();
@@ -596,6 +621,7 @@ ipcMain.handle('launch', async () => {
   });
   logger.log('launch spawned');
   discordRpc.onInGame(); // « En jeu » sur Discord
+  startPresenceWatch();  // suit le vanish en jeu -> masque le statut Discord quand le staff est vanish
   send('status', 'Jeu en cours 🎮');
   // Corrige le bug « curseur bloqué dans le launcher » : on rend la main au jeu.
   // Petit délai le temps que la fenêtre Minecraft apparaisse, puis on minimise le launcher.
