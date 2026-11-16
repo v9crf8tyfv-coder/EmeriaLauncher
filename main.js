@@ -71,6 +71,7 @@ function startPresenceWatch() {
     let s = null; try { s = fs.readFileSync(PRESENCE_FILE, 'utf8').trim(); } catch (e) {}
     if (s === 'hidden' || s === 'ingame') applyPresence(s);
   }, 2000);
+  if (presenceTimer.unref) presenceTimer.unref(); // ne doit pas empêcher la fermeture du launcher
 }
 function stopPresenceWatch() {
   if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
@@ -235,6 +236,15 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => app.quit());
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+// Fermeture propre : on coupe tout ce qui garde le process vivant (RPC Discord, watcher de
+// présence). Filet de sécurité : si quelque chose traîne, on force la sortie après 1,5 s pour
+// éviter le « L'application ne répond pas » (surtout macOS).
+app.on('before-quit', () => {
+  try { stopPresenceWatch(); } catch (e) {}
+  try { discordRpc.stop(); } catch (e) {}
+  const t = setTimeout(() => { try { app.exit(0); } catch (e) {} }, 1500);
+  if (t.unref) t.unref();
 });
 
 function send(channel, data) {

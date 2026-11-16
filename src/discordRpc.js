@@ -24,6 +24,7 @@ class DiscordRPC {
     const tryNext = () => {
       if (i > 9) return this.scheduleRetry();
       const s = net.connect(ipcPath(i++));
+      if (s.unref) s.unref(); // le socket Discord ne doit JAMAIS empêcher le launcher de se fermer
       s.on('connect', () => { this.socket = s; s.write(encode(0, { v: 1, client_id: this.clientId })); });
       s.on('error', () => { try { s.destroy(); } catch (e) {} tryNext(); });
       s.on('data', (d) => this.onData(d));
@@ -40,7 +41,12 @@ class DiscordRPC {
       try { const m = JSON.parse(json); if (m.evt === 'READY') { this.connected = true; if (this.activity) this._send(this.activity); } } catch (e) {}
     }
   }
-  scheduleRetry() { if (this.retry) return; this.retry = setTimeout(() => { this.retry = null; this.connect(); }, 8000); }
+  scheduleRetry() { if (this.retry) return; this.retry = setTimeout(() => { this.retry = null; this.connect(); }, 8000); if (this.retry.unref) this.retry.unref(); }
+  destroy() {
+    if (this.retry) { clearTimeout(this.retry); this.retry = null; }
+    if (this.socket) { try { this.socket.removeAllListeners(); this.socket.destroy(); } catch (e) {} this.socket = null; }
+    this.connected = false;
+  }
   _send(activity) {
     if (!this.socket || !this.connected) return;
     try { this.socket.write(encode(1, { cmd: 'SET_ACTIVITY', args: { pid: process.pid, activity }, nonce: `${Date.now()}-${Math.random()}` })); } catch (e) {}
@@ -73,5 +79,7 @@ function onLauncher() { if (rpc) rpc.setActivity(activity('Actuellement sur le l
 function onInGame() { if (rpc) { sessionStart = Math.floor(Date.now() / 1000); rpc.setActivity(activity('En jeu', sessionStart)); } }
 // VANISH : on retire complètement le statut Discord (le staff vanish ne doit pas être exposé « En jeu »).
 function onHidden() { if (rpc) rpc.setActivity(null); }
+// Arrêt propre (à la fermeture du launcher) : coupe le socket + le timer de reconnexion.
+function stop() { try { if (rpc) rpc.destroy(); } catch (e) {} rpc = null; }
 
-module.exports = { start, onLauncher, onInGame, onHidden };
+module.exports = { start, onLauncher, onInGame, onHidden, stop };
